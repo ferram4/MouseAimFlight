@@ -11,7 +11,7 @@ namespace MouseAimFlight
 
         float steerMult = 4;
         float steerInt = 0.5f;
-        float steerDamping = 10;
+        float steerDamping = 4;
 
         float pitchIntegrator;
 
@@ -158,7 +158,7 @@ namespace MouseAimFlight
             yawError = VectorUtils.SignedAngle(Vector3.up, Vector3.ProjectOnPlane(targetDirectionYaw, Vector3.forward), Vector3.right);
 
 
-            float steerPitch = (postPitchFactor * 0.015f * steerMult * pitchError) + (postPitchFactor * 0.015f * steerInt * pitchIntegrator) - (postPitchFactor * steerDamping * -localAngVel.x);
+            float steerPitch = (postPitchFactor * 0.015f * steerMult * pitchError) + (postPitchFactor * 0.035f * steerInt * pitchIntegrator) - (postPitchFactor * steerDamping * -localAngVel.x);
             float steerYaw = (postYawFactor * 0.008f * steerMult * yawError) - (postYawFactor * steerDamping * -localAngVel.z);
 
             pitchIntegrator += pitchError;
@@ -176,7 +176,7 @@ namespace MouseAimFlight
             Vector3 rollTarget;
 
             if (GetRadarAltitude() > 10)
-                rollTarget = (targetPosition + 750f * upDirection) - vesselTransform.position;
+                rollTarget = (targetPosition + (750f - yawError * 10f) * upDirection) - vesselTransform.position;
             else
                 rollTarget = upDirection;
 
