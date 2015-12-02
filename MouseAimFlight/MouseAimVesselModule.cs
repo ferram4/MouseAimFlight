@@ -255,7 +255,7 @@ namespace MouseAimFlight
             Vector3 rollTarget;
 
             if (GetRadarAltitude() > 10)
-                rollTarget = (targetPosition /*+ (750f - yawError * 10f) * upDirection*/) - vesselTransform.position;
+                rollTarget = (targetPosition + (750f - yawError * 10f) * upDirection) - vesselTransform.position;
             else
                 rollTarget = upDirection;
 
