@@ -230,6 +230,9 @@ namespace MouseAimFlight
             pitchIntegrator += pitchError;
             yawIntegrator += yawError;
 
+            pitchIntegrator = Mathf.Clamp(pitchIntegrator, -1.5f / pitchI, 1.5f / pitchI);
+            yawIntegrator = Mathf.Clamp(yawIntegrator, -1.5f / yawI, 1.5f / yawI);
+
             if (GetRadarAltitude() < 15)
             {
                 pitchIntegrator = 0;
@@ -271,6 +274,7 @@ namespace MouseAimFlight
             //debugString += "\nRollDamping: " + rollDamping;
 
             rollIntegrator += rollError;
+            rollIntegrator = Mathf.Clamp(rollIntegrator, -1.5f / rollI, 1.5f / rollI);
 
             float roll = Mathf.Clamp(steerRoll, -1, 1);
             if(s.roll == s.rollTrim)
