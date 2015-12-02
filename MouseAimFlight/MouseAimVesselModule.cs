@@ -9,13 +9,15 @@ namespace MouseAimFlight
         Vessel vessel;
         Transform vesselTransform;
 
-        float pitchP = 0.1f, pitchI = 0.001f, pitchD = 0;
+        float pitchP = 0.3f, pitchI = 0.015f, pitchD = 0.03f;
         float yawP = 0.005f, yawI = 0.0005f, yawD = 0.017f;
         float rollP = 0.01f, rollI = 0.01f, rollD = 0.0f;
+        float upWeighting = 10f;
 
         string pitchPstr, pitchIstr, pitchDstr;
         string yawPstr, yawIstr, yawDstr;
         string rollPstr, rollIstr, rollDstr;
+        string upWeightingStr;
 
         float pitchIntegrator;
         float yawIntegrator;
@@ -70,6 +72,8 @@ namespace MouseAimFlight
             rollDstr = rollD.ToString();
             rollIstr = rollI.ToString();
             rollPstr = rollP.ToString();
+
+            upWeightingStr = upWeighting.ToString();
         }
 
         void OnGUI()
@@ -123,6 +127,8 @@ namespace MouseAimFlight
                 rollD = float.Parse(rollDstr);
                 rollI = float.Parse(rollIstr);
                 rollP = float.Parse(rollPstr);
+
+                upWeighting = float.Parse(upWeightingStr);
 
                 rollIntegrator = pitchIntegrator = yawIntegrator = 0;
             }
@@ -255,7 +261,7 @@ namespace MouseAimFlight
             Vector3 rollTarget;
 
             if (GetRadarAltitude() > 10)
-                rollTarget = (targetPosition + (750f - yawError * 10f) * upDirection) - vesselTransform.position;
+                rollTarget = (targetPosition + upWeighting * (75f - yawError * 1f) * upDirection) - vesselTransform.position;
             else
                 rollTarget = upDirection;
 
