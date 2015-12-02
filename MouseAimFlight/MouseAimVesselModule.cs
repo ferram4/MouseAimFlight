@@ -267,7 +267,7 @@ namespace MouseAimFlight
             
             //debugString += "\nRoll offset: " + rollError;
             float steerRoll = (rollP * rollError);
-            steerRoll += (rollD * rollIntegrator);
+            steerRoll += (rollI * rollIntegrator);
             //debugString += "\nSteerRoll: " + steerRoll;
             float rollDamping = (rollD * -localAngVel.y);
             steerRoll -= rollDamping;
