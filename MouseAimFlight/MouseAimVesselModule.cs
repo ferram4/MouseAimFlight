@@ -9,9 +9,9 @@ namespace MouseAimFlight
         Vessel vessel;
         Transform vesselTransform;
 
-        float pitchP = 0.3f, pitchI = 0.015f, pitchD = 0.03f;
-        float yawP = 0.005f, yawI = 0.0005f, yawD = 0.017f;
-        float rollP = 0.01f, rollI = 0.01f, rollD = 0.0f;
+        float pitchP = 0.3f, pitchI = 0.75f, pitchD = 0.03f;
+        float yawP = 0.005f, yawI = 0.025f, yawD = 0.017f;
+        float rollP = 0.01f, rollI = 0.5f, rollD = 0.0f;
         float upWeighting = 10f;
 
         string pitchPstr, pitchIstr, pitchDstr;
@@ -19,9 +19,13 @@ namespace MouseAimFlight
         string rollPstr, rollIstr, rollDstr;
         string upWeightingStr;
 
-        float pitchIntegrator;
-        float yawIntegrator;
-        float rollIntegrator;
+        AdaptivePID pitchPID;
+        AdaptivePID yawPID;
+        AdaptivePID rollPID;
+
+        //float pitchIntegrator;
+        //float yawIntegrator;
+        //float rollIntegrator;
 
         Vector3 upDirection;
         Vector3 targetPosition;
@@ -74,6 +78,11 @@ namespace MouseAimFlight
             rollPstr = rollP.ToString();
 
             upWeightingStr = upWeighting.ToString();
+
+            pitchPID = new AdaptivePID(pitchP, pitchI, pitchD);
+            yawPID = new AdaptivePID(yawP, yawI, yawD);
+            rollPID = new AdaptivePID(rollP, rollI, rollD);
+
         }
 
         void OnGUI()
@@ -98,23 +107,58 @@ namespace MouseAimFlight
         {
             GUILayout.Label("Pitch:");
 
+            GUILayout.BeginHorizontal();
             TextEntry(ref pitchPstr, "P:");
+            GUILayout.Label(pitchPID.kp.ToString());
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
             TextEntry(ref pitchIstr, "I:");
+            GUILayout.Label(pitchPID.ki.ToString());
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
             TextEntry(ref pitchDstr, "D:");
+            GUILayout.Label(pitchPID.kd.ToString());
+            GUILayout.EndHorizontal();
 
             GUILayout.Label("Yaw:");
 
+            GUILayout.BeginHorizontal();
             TextEntry(ref yawPstr, "P:");
+            GUILayout.Label(yawPID.kp.ToString());
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
             TextEntry(ref yawIstr, "I:");
+            GUILayout.Label(yawPID.ki.ToString());
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
             TextEntry(ref yawDstr, "D:");
+            GUILayout.Label(yawPID.kd.ToString());
+            GUILayout.EndHorizontal();
 
             GUILayout.Label("Roll:");
 
+            GUILayout.BeginHorizontal();
             TextEntry(ref rollPstr, "P:");
-            TextEntry(ref rollIstr, "I:");
-            TextEntry(ref rollDstr, "D:");
+            GUILayout.Label(rollPID.kp.ToString());
+            GUILayout.EndHorizontal();
 
-            if(GUILayout.Button("Update K and reset integration errors"))
+            GUILayout.BeginHorizontal();
+            TextEntry(ref rollIstr, "I:");
+            GUILayout.Label(rollPID.ki.ToString());
+            GUILayout.EndHorizontal();
+            
+            GUILayout.BeginHorizontal();
+            TextEntry(ref rollDstr, "D:");
+            GUILayout.Label(rollPID.kd.ToString());
+            GUILayout.EndHorizontal();
+
+            TextEntry(ref upWeightingStr, "Roll-up Weight");
+            
+            if (GUILayout.Button("Update K and reset integration errors"))
             {
                 pitchD = float.Parse(pitchDstr);
                 pitchI = float.Parse(pitchIstr);
@@ -130,10 +174,16 @@ namespace MouseAimFlight
 
                 upWeighting = float.Parse(upWeightingStr);
 
-                rollIntegrator = pitchIntegrator = yawIntegrator = 0;
+                pitchPID = new AdaptivePID(pitchP, pitchI, pitchD);
+                yawPID = new AdaptivePID(yawP, yawI, yawD);
+                rollPID = new AdaptivePID(rollP, rollI, rollD);
             }
-            if(GUILayout.Button("Reset integration errors"))
-                rollIntegrator = pitchIntegrator = yawIntegrator = 0;
+            if (GUILayout.Button("Reset integration errors"))
+            {
+                pitchPID.ZeroIntegral();
+                yawPID.ZeroIntegral();
+                rollPID.ZeroIntegral();
+            }
 
             GUI.DragWindow();
         }
@@ -229,26 +279,24 @@ namespace MouseAimFlight
             pitchError = VectorUtils.SignedAngle(Vector3.up, Vector3.ProjectOnPlane(targetDirection, Vector3.right), Vector3.back);
             yawError = VectorUtils.SignedAngle(Vector3.up, Vector3.ProjectOnPlane(targetDirectionYaw, Vector3.forward), Vector3.right);
 
+            bool updateGains = GetRadarAltitude() > 15;
 
-            float steerPitch = (pitchP * pitchError) + (pitchI * pitchIntegrator) - (pitchD * -localAngVel.x);
-            float steerYaw = (yawP * yawError) + (yawI * yawIntegrator) - (yawD * -localAngVel.z);
+            float steerPitch = pitchPID.Simulate(pitchError, localAngVel.x, TimeWarp.fixedDeltaTime, updateGains);
+            float steerYaw = yawPID.Simulate(yawError, localAngVel.z, TimeWarp.fixedDeltaTime, updateGains);
 
-            pitchIntegrator += pitchError;
-            yawIntegrator += yawError;
+            pitchPID.ClampIntegral(TimeWarp.fixedDeltaTime / pitchPID.ki);
+            yawPID.ClampIntegral(TimeWarp.fixedDeltaTime / yawPID.ki);
 
-            pitchIntegrator = Mathf.Clamp(pitchIntegrator, -1f / pitchI, 1f / pitchI);
-            yawIntegrator = Mathf.Clamp(yawIntegrator, -1f / yawI, 1f / yawI);
-
-            if (GetRadarAltitude() < 15)
+            if (updateGains)
             {
-                pitchIntegrator = 0;
-                yawIntegrator = 0;
-                rollIntegrator = 0;
+                pitchPID.ZeroIntegral();
+                yawPID.ZeroIntegral();
+                rollPID.ZeroIntegral();
             }
             if (Math.Abs(pitchError) > 20)
-                pitchIntegrator = 0;
+                pitchPID.ZeroIntegral();
             if (Math.Abs(yawError) > 20)
-                yawIntegrator = 0;
+                yawPID.ZeroIntegral();
 
 
 
@@ -269,18 +317,16 @@ namespace MouseAimFlight
 
             float rollError = VectorUtils.SignedAngle(currentRoll, rollTarget, vesselTransform.right);
             if (Math.Abs(rollError) > 20)
-                rollIntegrator = 0;
+                rollPID.ZeroIntegral();
             
             //debugString += "\nRoll offset: " + rollError;
-            float steerRoll = (rollP * rollError);
-            steerRoll += (rollI * rollIntegrator);
+            float steerRoll = rollPID.Simulate(rollError, localAngVel.y, TimeWarp.fixedDeltaTime, updateGains);
             //debugString += "\nSteerRoll: " + steerRoll;
-            float rollDamping = (rollD * -localAngVel.y);
-            steerRoll -= rollDamping;
+            //float rollDamping = (rollD * -localAngVel.y);
+            //steerRoll -= rollDamping;
             //debugString += "\nRollDamping: " + rollDamping;
 
-            rollIntegrator += rollError;
-            rollIntegrator = Mathf.Clamp(rollIntegrator, -1f / rollI, 1f / rollI);
+            rollPID.ClampIntegral(TimeWarp.fixedDeltaTime / rollPID.ki);
 
             float roll = Mathf.Clamp(steerRoll, -1, 1);
             if(s.roll == s.rollTrim)
