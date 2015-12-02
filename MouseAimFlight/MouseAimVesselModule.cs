@@ -9,11 +9,17 @@ namespace MouseAimFlight
         Vessel vessel;
         Transform vesselTransform;
 
-        float steerMult = 4;
-        float steerInt = 0.5f;
-        float steerDamping = 4;
+        float pitchP = 0.06f, pitchI = 0.14f, pitchD = 2;
+        float yawP = 0.088f, yawI = 0, yawD = 2;
+        float rollP = 0.06f, rollI = 0, rollD = 0.2f;
+
+        string pitchPstr, pitchIstr, pitchDstr;
+        string yawPstr, yawIstr, yawDstr;
+        string rollPstr, rollIstr, rollDstr;
 
         float pitchIntegrator;
+        float yawIntegrator;
+        float rollIntegrator;
 
         Vector3 upDirection;
         Vector3 targetPosition;
@@ -21,6 +27,8 @@ namespace MouseAimFlight
         Vector3 vesselForwardScreenLocation;
 
         Vector3 prevCameraVector;
+
+        Rect debugRect;
 
         GameObject vobj;
         Transform velocityTransform
@@ -51,6 +59,17 @@ namespace MouseAimFlight
             if(vesselForwardReticle == null)
                 vesselForwardReticle = GameDatabase.Instance.GetTexture("BDArmory/Textures/greenPointCircle", false);
 
+            pitchDstr = pitchD.ToString();
+            pitchIstr = pitchI.ToString();
+            pitchPstr = pitchP.ToString();
+
+            yawDstr = yawD.ToString();
+            yawIstr = yawI.ToString();
+            yawPstr = yawP.ToString();
+
+            rollDstr = rollD.ToString();
+            rollIstr = rollI.ToString();
+            rollPstr = rollP.ToString();
         }
 
         void OnGUI()
@@ -66,7 +85,59 @@ namespace MouseAimFlight
                 Rect directionRect = new Rect(vesselForwardScreenLocation.x - (0.5f * size), (Screen.height - vesselForwardScreenLocation.y) - (0.5f * size), size, size);
 
                 GUI.DrawTexture(directionRect, vesselForwardReticle);
+
+                debugRect = GUILayout.Window(this.GetHashCode(), debugRect, DebugPIDGUI, "");
             }
+        }
+
+        void DebugPIDGUI(int windowID)
+        {
+            GUILayout.Label("Pitch:");
+
+            TextEntry(ref pitchPstr, "P:");
+            TextEntry(ref pitchIstr, "I:");
+            TextEntry(ref pitchDstr, "D:");
+
+            GUILayout.Label("Yaw:");
+
+            TextEntry(ref yawPstr, "P:");
+            TextEntry(ref yawIstr, "I:");
+            TextEntry(ref yawDstr, "D:");
+
+            GUILayout.Label("Roll:");
+
+            TextEntry(ref rollPstr, "P:");
+            TextEntry(ref rollIstr, "I:");
+            TextEntry(ref rollDstr, "D:");
+
+            if(GUILayout.Button("Update K and reset integration errors"))
+            {
+                pitchDstr = pitchD.ToString();
+                pitchIstr = pitchI.ToString();
+                pitchPstr = pitchP.ToString();
+
+                yawDstr = yawD.ToString();
+                yawIstr = yawI.ToString();
+                yawPstr = yawP.ToString();
+
+                rollDstr = rollD.ToString();
+                rollIstr = rollI.ToString();
+                rollPstr = rollP.ToString();
+
+                rollIntegrator = pitchIntegrator = yawIntegrator = 0;
+            }
+            if(GUILayout.Button("Reset integration errors"))
+                rollIntegrator = pitchIntegrator = yawIntegrator = 0;
+
+            GUI.DragWindow();
+        }
+
+        void TextEntry(ref string field, string label)
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label(label);
+            field = GUILayout.TextField(field);
+            GUILayout.EndHorizontal();
         }
 
         void Update()
@@ -132,8 +203,6 @@ namespace MouseAimFlight
             Vector3 targetDirectionYaw;
             float yawError;
             float pitchError;
-            float postYawFactor;
-            float postPitchFactor;
             //if (steerMode == SteerModes.NormalFlight)
             
                 targetDirection = vesselTransform.InverseTransformDirection(targetPosition - velocityTransform.position).normalized;
@@ -143,9 +212,6 @@ namespace MouseAimFlight
                 //targetDirectionYaw = Vector3.RotateTowards(Vector3.up, targetDirectionYaw, 45 * Mathf.Deg2Rad, 0);
                 targetDirectionYaw = targetDirection;
 
-
-                postYawFactor = 1;
-                postPitchFactor = 1;
             
             //else//(steerMode == SteerModes.Aiming)
             /*{
@@ -158,13 +224,23 @@ namespace MouseAimFlight
             yawError = VectorUtils.SignedAngle(Vector3.up, Vector3.ProjectOnPlane(targetDirectionYaw, Vector3.forward), Vector3.right);
 
 
-            float steerPitch = (postPitchFactor * 0.015f * steerMult * pitchError) + (postPitchFactor * 0.035f * steerInt * pitchIntegrator) - (postPitchFactor * steerDamping * -localAngVel.x);
-            float steerYaw = (postYawFactor * 0.008f * steerMult * yawError) - (postYawFactor * steerDamping * -localAngVel.z);
+            float steerPitch = (pitchP * pitchError) + (pitchI * pitchIntegrator) - (pitchD * -localAngVel.x);
+            float steerYaw = (yawP * yawError) + (yawI * yawIntegrator) - (yawD * -localAngVel.z);
 
             pitchIntegrator += pitchError;
+            yawIntegrator += yawError;
 
-            if (GetRadarAltitude() < 15 || Math.Abs(pitchError) > 20)
+            if (GetRadarAltitude() < 15)
+            {
                 pitchIntegrator = 0;
+                yawIntegrator = 0;
+                rollIntegrator = 0;
+            }
+            if (Math.Abs(pitchError) > 20)
+                pitchIntegrator = 0;
+            if (Math.Abs(yawError) > 20)
+                yawIntegrator = 0;
+
 
 
             s.yaw = Mathf.Clamp(steerYaw, -1, 1);
@@ -183,13 +259,18 @@ namespace MouseAimFlight
             rollTarget = Vector3.ProjectOnPlane(rollTarget, vesselTransform.up);
 
             float rollError = VectorUtils.SignedAngle(currentRoll, rollTarget, vesselTransform.right);
+            if (Math.Abs(rollError) > 20)
+                rollIntegrator = 0;
+            
             //debugString += "\nRoll offset: " + rollError;
-            float steerRoll = (steerMult * 0.015f * rollError);
+            float steerRoll = (rollP * rollError);
+            steerRoll += (rollD * rollIntegrator);
             //debugString += "\nSteerRoll: " + steerRoll;
-            float rollDamping = (.10f * steerDamping * -localAngVel.y);
+            float rollDamping = (rollD * -localAngVel.y);
             steerRoll -= rollDamping;
             //debugString += "\nRollDamping: " + rollDamping;
 
+            rollIntegrator += rollError;
 
             float roll = Mathf.Clamp(steerRoll, -1, 1);
             if(s.roll == s.rollTrim)
