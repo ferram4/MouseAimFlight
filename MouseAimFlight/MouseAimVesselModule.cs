@@ -112,17 +112,17 @@ namespace MouseAimFlight
 
             if(GUILayout.Button("Update K and reset integration errors"))
             {
-                pitchDstr = pitchD.ToString();
-                pitchIstr = pitchI.ToString();
-                pitchPstr = pitchP.ToString();
+                pitchD = float.Parse(pitchDstr);
+                pitchI = float.Parse(pitchIstr);
+                pitchP = float.Parse(pitchPstr);
 
-                yawDstr = yawD.ToString();
-                yawIstr = yawI.ToString();
-                yawPstr = yawP.ToString();
+                yawD = float.Parse(yawDstr);
+                yawI = float.Parse(yawIstr);
+                yawP = float.Parse(yawPstr);
 
-                rollDstr = rollD.ToString();
-                rollIstr = rollI.ToString();
-                rollPstr = rollP.ToString();
+                rollD = float.Parse(rollDstr);
+                rollI = float.Parse(rollIstr);
+                rollP = float.Parse(rollPstr);
 
                 rollIntegrator = pitchIntegrator = yawIntegrator = 0;
             }
