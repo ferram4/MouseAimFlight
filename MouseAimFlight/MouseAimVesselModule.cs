@@ -9,9 +9,9 @@ namespace MouseAimFlight
         Vessel vessel;
         Transform vesselTransform;
 
-        float pitchP = 0.06f, pitchI = 0.14f, pitchD = 2;
-        float yawP = 0.088f, yawI = 0, yawD = 2;
-        float rollP = 0.06f, rollI = 0, rollD = 0.2f;
+        float pitchP = 0.1f, pitchI = 0.001f, pitchD = 0;
+        float yawP = 0.005f, yawI = 0.0005f, yawD = 1;
+        float rollP = 0.01f, rollI = 0.01f, rollD = 0.0f;
 
         string pitchPstr, pitchIstr, pitchDstr;
         string yawPstr, yawIstr, yawDstr;
@@ -255,7 +255,7 @@ namespace MouseAimFlight
             Vector3 rollTarget;
 
             if (GetRadarAltitude() > 10)
-                rollTarget = (targetPosition + (750f - yawError * 10f) * upDirection) - vesselTransform.position;
+                rollTarget = (targetPosition /*+ (750f - yawError * 10f) * upDirection*/) - vesselTransform.position;
             else
                 rollTarget = upDirection;
 
