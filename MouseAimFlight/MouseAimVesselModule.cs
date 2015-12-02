@@ -10,7 +10,7 @@ namespace MouseAimFlight
         Transform vesselTransform;
 
         float pitchP = 0.1f, pitchI = 0.001f, pitchD = 0;
-        float yawP = 0.005f, yawI = 0.0005f, yawD = 1;
+        float yawP = 0.005f, yawI = 0.0005f, yawD = 0.017f;
         float rollP = 0.01f, rollI = 0.01f, rollD = 0.0f;
 
         string pitchPstr, pitchIstr, pitchDstr;
@@ -197,7 +197,7 @@ namespace MouseAimFlight
                 velocityTransform.rotation = Quaternion.LookRotation(srfVel, -vesselTransform.forward);
             }
             velocityTransform.rotation = Quaternion.AngleAxis(90, velocityTransform.right) * velocityTransform.rotation;
-            Vector3 localAngVel = vessel.angularVelocity;
+            Vector3 localAngVel = vessel.angularVelocity * Mathf.Rad2Deg;
 
             Vector3 targetDirection;
             Vector3 targetDirectionYaw;
