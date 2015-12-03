@@ -196,7 +196,7 @@ namespace MouseAimFlight
             GUILayout.EndHorizontal();
         }
 
-        void Update()
+        void LateUpdate()
         {
             UpdateMouseCursorForCameraRotation();
             targetPosition = GetMouseCursorPosition();
