@@ -10,12 +10,16 @@ namespace MouseAimFlight
     {
         public float kp, ki, kd;
         float outputP, outputI, outputD;
+        float initKp, initKi, initKd;
 
         float adaptationCoefficient;
         float integral;
 
         public AdaptivePID(float initKp, float initKi, float initKd)
         {
+            this.initKp = initKp;
+            this.initKi = initKi;
+            this.initKd = initKd;
             kp = initKp;
             ki = initKi;
             kd = initKd;
@@ -32,8 +36,8 @@ namespace MouseAimFlight
 
             integral += error * timeStep;
 
-            //if (updateGains)
-            //    AdaptGains(timeStep, error);
+            if (updateGains)
+                AdaptGains(timeStep, error);
 
             return outputP * kp + outputI * ki + outputD * kd;
         }
@@ -53,15 +57,15 @@ namespace MouseAimFlight
 
         void AdaptGains(float timeStep, float error)
         {
-            kp += timeStep * adaptationCoefficient * outputP * error;
+            kp = initKp;
             if (kp <= 0)
                 kp = 0;
 
-            ki += timeStep * adaptationCoefficient * outputI * error;
+            ki = initKi;
             if (ki <= 0)
                 ki = 0;
 
-            kd += timeStep * adaptationCoefficient * outputD * error;
+            kd = initKd * (0.5f + 0.1f / (Math.Abs(error) + 0.2f));
             if (kd <= 0)
                 kd = 0;
         }
