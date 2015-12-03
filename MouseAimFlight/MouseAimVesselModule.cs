@@ -214,13 +214,23 @@ namespace MouseAimFlight
 
         void UpdateMouseCursorForCameraRotation()
         {
-            Vector3 mouseDelta = new Vector3(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y")) * 25;
+            Vector3 mouseDelta;
+            bool freeLook = Input.GetMouseButton(2);
+
+
+            if (freeLook)
+                mouseDelta = Vector3.zero;
+            else
+                mouseDelta = new Vector3(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y")) * 25;
 
             Vector3 adjustedScreenCoords = FlightCamera.fetch.mainCamera.WorldToScreenPoint(prevCameraVector + FlightCamera.fetch.mainCamera.transform.position);
 
             mouseAimScreenLocation = adjustedScreenCoords + mouseDelta;
-            mouseAimScreenLocation.x = Mathf.Clamp(mouseAimScreenLocation.x, 0, Screen.width);
-            mouseAimScreenLocation.y = Mathf.Clamp(mouseAimScreenLocation.y, 0, Screen.height);
+            if (!freeLook)
+            {
+                mouseAimScreenLocation.x = Mathf.Clamp(mouseAimScreenLocation.x, 0, Screen.width);
+                mouseAimScreenLocation.y = Mathf.Clamp(mouseAimScreenLocation.y, 0, Screen.height);
+            }
         }
 
         void UpdateVesselForwardLocation()
