@@ -13,14 +13,11 @@ C:\Users\ferram4\MouseAimFlight\MouseAimFlight\obj\Debug\MouseAimFlight.dll
 C:\Users\ferram4\MouseAimFlight\MouseAimFlight\obj\Debug\MouseAimFlight.pdb
 C:\Users\tetryds\Documents\GitHubVisualStudio\MouseAimFlight\MouseAimFlight\bin\Debug\MouseAimFlight.dll
 C:\Users\tetryds\Documents\GitHubVisualStudio\MouseAimFlight\MouseAimFlight\bin\Debug\MouseAimFlight.pdb
-C:\Users\tetryds\Documents\GitHubVisualStudio\MouseAimFlight\MouseAimFlight\bin\Debug\Assembly-CSharp.dll
-C:\Users\tetryds\Documents\GitHubVisualStudio\MouseAimFlight\MouseAimFlight\bin\Debug\UnityEngine.dll
 C:\Users\tetryds\Documents\GitHubVisualStudio\MouseAimFlight\MouseAimFlight\bin\Debug\Assembly-CSharp-firstpass.dll
 C:\Users\tetryds\Documents\GitHubVisualStudio\MouseAimFlight\MouseAimFlight\bin\Debug\System.Xml.dll
 C:\Users\tetryds\Documents\GitHubVisualStudio\MouseAimFlight\MouseAimFlight\bin\Debug\TDx.TDxInput.dll
 C:\Users\tetryds\Documents\GitHubVisualStudio\MouseAimFlight\MouseAimFlight\bin\Debug\TrackIRUnity.dll
 C:\Users\tetryds\Documents\GitHubVisualStudio\MouseAimFlight\MouseAimFlight\bin\Debug\Mono.Cecil.dll
-C:\Users\tetryds\Documents\GitHubVisualStudio\MouseAimFlight\MouseAimFlight\bin\Debug\Mono.Security.dll
 C:\Users\tetryds\Documents\GitHubVisualStudio\MouseAimFlight\MouseAimFlight\obj\Debug\MouseAimFlight.csprojResolveAssemblyReference.cache
 C:\Users\tetryds\Documents\GitHubVisualStudio\MouseAimFlight\MouseAimFlight\obj\Debug\MouseAimFlight.dll
 C:\Users\tetryds\Documents\GitHubVisualStudio\MouseAimFlight\MouseAimFlight\obj\Debug\MouseAimFlight.pdb
