@@ -198,6 +198,9 @@ namespace MouseAimFlight
 
         void LateUpdate()
         {
+            if (vessel != FlightGlobals.ActiveVessel)
+                return;
+
             UpdateMouseCursorForCameraRotation();
             targetPosition = GetMouseCursorPosition();
             UpdateVesselForwardLocation();
@@ -205,6 +208,9 @@ namespace MouseAimFlight
 
         void MouseAimPilot(FlightCtrlState s)
         {
+            if (vessel != FlightGlobals.ActiveVessel)
+                return;
+            
             vesselTransform = vessel.ReferenceTransform;
 
             upDirection = VectorUtils.GetUpDirection(vesselTransform.position);
