@@ -9,7 +9,7 @@ namespace MouseAimFlight
         Vessel vessel;
         Transform vesselTransform;
 
-        float pitchP = 0.3f, pitchI = 0.35f, pitchD = 0.04f;
+        float pitchP = 0.2f, pitchI = 0.1f, pitchD = 0.07f;
         float yawP = 0.005f, yawI = 0.001f, yawD = 0.04f;
         float rollP = 0.01f, rollI = 0.5f, rollD = 0.005f;
         float upWeighting = 10f;
