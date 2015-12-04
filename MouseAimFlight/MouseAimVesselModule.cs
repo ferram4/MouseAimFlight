@@ -27,6 +27,8 @@ namespace MouseAimFlight
         //float yawIntegrator;
         //float rollIntegrator;
 
+        bool mouseAimActive = false;
+
         Vector3 upDirection;
         Vector3 targetPosition;
         Vector3 mouseAimScreenLocation;
@@ -87,7 +89,7 @@ namespace MouseAimFlight
 
         void OnGUI()
         {
-            if (vessel == FlightGlobals.ActiveVessel)
+            if (vessel == FlightGlobals.ActiveVessel && mouseAimActive)
             {
                 float size = Screen.width / 16;
                 Rect aimRect = new Rect(mouseAimScreenLocation.x - (0.5f * size), (Screen.height - mouseAimScreenLocation.y) - (0.5f * size), size, size);
@@ -198,7 +200,14 @@ namespace MouseAimFlight
 
         void LateUpdate()
         {
-            if (vessel != FlightGlobals.ActiveVessel)
+            if (Input.GetKeyDown("P"))
+            {
+                mouseAimActive = !mouseAimActive;
+                Screen.showCursor = !mouseAimActive;
+                Screen.lockCursor = !mouseAimActive;
+            }
+
+            if (vessel != FlightGlobals.ActiveVessel || !mouseAimActive)
                 return;
 
             UpdateMouseCursorForCameraRotation();
@@ -208,7 +217,7 @@ namespace MouseAimFlight
 
         void MouseAimPilot(FlightCtrlState s)
         {
-            if (vessel != FlightGlobals.ActiveVessel)
+            if (vessel != FlightGlobals.ActiveVessel || !mouseAimActive)
                 return;
             
             vesselTransform = vessel.ReferenceTransform;
