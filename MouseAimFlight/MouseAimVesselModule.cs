@@ -28,7 +28,7 @@ namespace MouseAimFlight
         //float rollIntegrator;
 
         bool mouseAimActive = false;
-
+        
         Vector3 upDirection;
         Vector3 targetPosition;
         Vector3 mouseAimScreenLocation;
@@ -200,7 +200,7 @@ namespace MouseAimFlight
 
         void LateUpdate()
         {
-            if (Input.GetKeyDown("P"))
+            if (Input.GetKeyDown(KeyCode.P))
             {
                 mouseAimActive = !mouseAimActive;
                 Screen.showCursor = !mouseAimActive;
