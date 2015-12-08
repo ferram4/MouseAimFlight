@@ -21,3 +21,6 @@ C:\Users\tetryds\Documents\GitHubVisualStudio\MouseAimFlight\MouseAimFlight\bin\
 C:\Users\tetryds\Documents\GitHubVisualStudio\MouseAimFlight\MouseAimFlight\obj\Debug\MouseAimFlight.csprojResolveAssemblyReference.cache
 C:\Users\tetryds\Documents\GitHubVisualStudio\MouseAimFlight\MouseAimFlight\obj\Debug\MouseAimFlight.dll
 C:\Users\tetryds\Documents\GitHubVisualStudio\MouseAimFlight\MouseAimFlight\obj\Debug\MouseAimFlight.pdb
+C:\Users\tetryds\Documents\GitHubVisualStudio\MouseAimFlight\MouseAimFlight\bin\Debug\Assembly-CSharp.dll
+C:\Users\tetryds\Documents\GitHubVisualStudio\MouseAimFlight\MouseAimFlight\bin\Debug\UnityEngine.dll
+C:\Users\tetryds\Documents\GitHubVisualStudio\MouseAimFlight\MouseAimFlight\bin\Debug\Mono.Security.dll
