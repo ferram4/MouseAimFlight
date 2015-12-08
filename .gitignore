@@ -44,3 +44,6 @@ TDx*
 UnityEngine.dll
 *.pdb
 *.jar
+
+*.v12.suo
+*.suo

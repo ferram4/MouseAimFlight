@@ -83,6 +83,7 @@ namespace MouseAimFlight
             yawPID = new AdaptivePID(yawP, yawI, yawD);
             rollPID = new AdaptivePID(rollP, rollI, rollD);
 
+            targetPosition = vesselTransform.up * 5000;     //if it's activated, set it to the baseline
         }
 
         void OnGUI()
@@ -197,7 +198,7 @@ namespace MouseAimFlight
             GUILayout.EndHorizontal();
         }
 
-        void Update()
+        void LateUpdate()
         {
             if (Input.GetKeyDown(KeyCode.P))
             {
@@ -225,7 +226,7 @@ namespace MouseAimFlight
 
             upDirection = VectorUtils.GetUpDirection(vesselTransform.position);
 
-            FlyToPosition(s, targetPosition + vesselTransform.position);
+            FlyToPosition(s, targetPosition + vessel.CurrentCoM);
         }
 
         void UpdateMouseCursorForCameraRotation()
@@ -250,7 +251,7 @@ namespace MouseAimFlight
 
         void UpdateCursorScreenLocation()
         {
-            mouseAimScreenLocation = FlightCamera.fetch.mainCamera.WorldToScreenPoint(targetPosition + vesselTransform.position);
+            mouseAimScreenLocation = FlightCamera.fetch.mainCamera.WorldToScreenPoint(targetPosition + vessel.CurrentCoM);
         }
 
         void UpdateVesselScreenLocation()
