@@ -26,8 +26,7 @@ $RECYCLE.BIN/
 .LSOverride
 
 # Icon must ends with two \r.
-Icon
-
+Icon
 
 # Thumbnails
 ._*
@@ -46,8 +45,5 @@ UnityEngine.dll
 *.pdb
 *.jar
 
-#Projectstuff
-AssemblyInfo.cs
-Assembly-CSharp
-UnityEngine
-System
+*.v12.suo
+*.suo

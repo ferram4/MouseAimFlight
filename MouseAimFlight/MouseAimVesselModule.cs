@@ -28,13 +28,11 @@ namespace MouseAimFlight
         //float rollIntegrator;
 
         bool mouseAimActive = false;
-
+        
         Vector3 upDirection;
         Vector3 targetPosition;
         Vector3 mouseAimScreenLocation;
         Vector3 vesselForwardScreenLocation;
-
-        Vector3 prevCameraVector;
 
         Rect debugRect;
 
@@ -85,6 +83,7 @@ namespace MouseAimFlight
             yawPID = new AdaptivePID(yawP, yawI, yawD);
             rollPID = new AdaptivePID(rollP, rollI, rollD);
 
+            targetPosition = vesselTransform.up * 5000;     //if it's activated, set it to the baseline
         }
 
         void OnGUI()
@@ -101,8 +100,9 @@ namespace MouseAimFlight
 
                 GUI.DrawTexture(directionRect, vesselForwardReticle);
 
-                debugRect = GUILayout.Window(this.GetHashCode(), debugRect, DebugPIDGUI, "");
             }
+            else if(vessel == FlightGlobals.ActiveVessel)
+                debugRect = GUILayout.Window(this.GetHashCode(), debugRect, DebugPIDGUI, "");
         }
 
         void DebugPIDGUI(int windowID)
@@ -200,19 +200,21 @@ namespace MouseAimFlight
 
         void LateUpdate()
         {
-            if (Input.GetKeyDown("P"))
+            if (Input.GetKeyDown(KeyCode.P))
             {
                 mouseAimActive = !mouseAimActive;
-                Screen.showCursor = !mouseAimActive;
-                Screen.lockCursor = !mouseAimActive;
+                Screen.showCursor = mouseAimActive;
+                Screen.lockCursor = mouseAimActive;
+                targetPosition = vesselTransform.up * 5000;     //if it's activated, set it to the baseline
+                UpdateCursorScreenLocation();
             }
 
             if (vessel != FlightGlobals.ActiveVessel || !mouseAimActive)
                 return;
 
             UpdateMouseCursorForCameraRotation();
-            targetPosition = GetMouseCursorPosition();
-            UpdateVesselForwardLocation();
+            UpdateVesselScreenLocation();
+            UpdateCursorScreenLocation();
         }
 
         void MouseAimPilot(FlightCtrlState s)
@@ -224,7 +226,7 @@ namespace MouseAimFlight
 
             upDirection = VectorUtils.GetUpDirection(vesselTransform.position);
 
-            FlyToPosition(s, targetPosition);
+            FlyToPosition(s, targetPosition + vessel.CurrentCoM);
         }
 
         void UpdateMouseCursorForCameraRotation()
@@ -234,40 +236,28 @@ namespace MouseAimFlight
 
 
             if (freeLook)
-                mouseDelta = Vector3.zero;
-            else
-                mouseDelta = new Vector3(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y")) * 25;
+                return;
 
-            Vector3 adjustedScreenCoords = FlightCamera.fetch.mainCamera.WorldToScreenPoint(prevCameraVector + FlightCamera.fetch.mainCamera.transform.position);
+            mouseDelta = new Vector3(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y")) * 100;
 
-            mouseAimScreenLocation = adjustedScreenCoords + mouseDelta;
-            if (!freeLook)
-            {
-                mouseAimScreenLocation.x = Mathf.Clamp(mouseAimScreenLocation.x, 0, Screen.width);
-                mouseAimScreenLocation.y = Mathf.Clamp(mouseAimScreenLocation.y, 0, Screen.height);
-            }
+            Transform cameraTransform = FlightCamera.fetch.mainCamera.transform;
+
+            Vector3 localTarget = cameraTransform.InverseTransformDirection(targetPosition);
+            localTarget += mouseDelta;
+            localTarget *= 5000f / localTarget.magnitude;
+
+            targetPosition = cameraTransform.TransformDirection(localTarget);
         }
 
-        void UpdateVesselForwardLocation()
+        void UpdateCursorScreenLocation()
+        {
+            mouseAimScreenLocation = FlightCamera.fetch.mainCamera.WorldToScreenPoint(targetPosition + vessel.CurrentCoM);
+        }
+
+        void UpdateVesselScreenLocation()
         {
             vesselForwardScreenLocation = vesselTransform.up * 5000;
-            vesselForwardScreenLocation = FlightCamera.fetch.mainCamera.WorldToScreenPoint(vesselForwardScreenLocation + FlightCamera.fetch.mainCamera.transform.position);
-        }
-
-        Vector3 GetMouseCursorPosition()
-        {
-            Vector3 mouseAim = new Vector3(mouseAimScreenLocation.x / Screen.width, mouseAimScreenLocation.y / Screen.height, 5000);
-            Vector3 target;
- /*           Ray ray = FlightCamera.fetch.mainCamera.ViewportPointToRay(mouseAim);
-
-            prevCameraVector = ray.direction;
-            target = (prevCameraVector * 5000) + FlightCamera.fetch.mainCamera.transform.position;*/
-
-            target = FlightCamera.fetch.mainCamera.ViewportToWorldPoint(mouseAim);
-
-
-            prevCameraVector = target - FlightCamera.fetch.mainCamera.transform.position;
-            return target;
+            vesselForwardScreenLocation = FlightCamera.fetch.mainCamera.WorldToScreenPoint(vesselForwardScreenLocation + vesselTransform.position);
         }
 
         void FlyToPosition(FlightCtrlState s, Vector3 targetPosition)
