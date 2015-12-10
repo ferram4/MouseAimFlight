@@ -83,6 +83,7 @@ namespace MouseAimFlight
             yawPID = new AdaptivePID(yawP, yawI, yawD);
             rollPID = new AdaptivePID(rollP, rollI, rollD);
 
+            vesselTransform = vessel.ReferenceTransform;
             targetPosition = vesselTransform.up * 5000;     //if it's activated, set it to the baseline
         }
 
@@ -198,14 +199,22 @@ namespace MouseAimFlight
             GUILayout.EndHorizontal();
         }
 
-        void LateUpdate()
+        void Update()
         {
             if (Input.GetKeyDown(KeyCode.P))
             {
                 mouseAimActive = !mouseAimActive;
-                Screen.showCursor = mouseAimActive;
-                Screen.lockCursor = mouseAimActive;
-                targetPosition = vesselTransform.up * 5000;     //if it's activated, set it to the baseline
+                if(mouseAimActive)
+                {
+                    Screen.lockCursor = true;
+                    Screen.showCursor = false;
+                }
+                else
+                {
+                    Screen.lockCursor = false;
+                    Screen.showCursor = true;
+                }
+                targetPosition = vesselTransform.up * 5000f;     //if it's activated, set it to the baseline
                 UpdateCursorScreenLocation();
             }
 
@@ -221,43 +230,44 @@ namespace MouseAimFlight
         {
             if (vessel != FlightGlobals.ActiveVessel || !mouseAimActive)
                 return;
-            
+
             vesselTransform = vessel.ReferenceTransform;
+            //if(!freeLook)
+            //    UpdateMouseCursorForCameraRotation();
 
             upDirection = VectorUtils.GetUpDirection(vesselTransform.position);
 
-            FlyToPosition(s, targetPosition + vessel.CurrentCoM);
+            FlyToPosition(s, targetPosition + vessel.CoM);
         }
 
         void UpdateMouseCursorForCameraRotation()
         {
             Vector3 mouseDelta;
-            bool freeLook = Input.GetMouseButton(2);
 
-
-            if (freeLook)
-                return;
-
-            mouseDelta = new Vector3(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y")) * 100;
+            if (Mouse.Right.GetButton())
+                mouseDelta = Vector3.zero;
+            else
+                mouseDelta = new Vector3(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y")) * 100;
 
             Transform cameraTransform = FlightCamera.fetch.mainCamera.transform;
 
             Vector3 localTarget = cameraTransform.InverseTransformDirection(targetPosition);
             localTarget += mouseDelta;
-            localTarget *= 5000f / localTarget.magnitude;
+            localTarget.Normalize();
+            localTarget *= 5000f;
 
             targetPosition = cameraTransform.TransformDirection(localTarget);
         }
 
         void UpdateCursorScreenLocation()
         {
-            mouseAimScreenLocation = FlightCamera.fetch.mainCamera.WorldToScreenPoint(targetPosition + vessel.CurrentCoM);
+            mouseAimScreenLocation = FlightCamera.fetch.mainCamera.WorldToScreenPoint(targetPosition + vessel.CoM);
         }
 
         void UpdateVesselScreenLocation()
         {
-            vesselForwardScreenLocation = vesselTransform.up * 5000;
-            vesselForwardScreenLocation = FlightCamera.fetch.mainCamera.WorldToScreenPoint(vesselForwardScreenLocation + vesselTransform.position);
+            vesselForwardScreenLocation = vesselTransform.up * 5000f;
+            vesselForwardScreenLocation = FlightCamera.fetch.mainCamera.WorldToScreenPoint(vesselForwardScreenLocation + vessel.CoM);
         }
 
         void FlyToPosition(FlightCtrlState s, Vector3 targetPosition)
@@ -357,10 +367,12 @@ namespace MouseAimFlight
 
         void OnDestroy()
         {
-            if (vobj)
-                GameObject.Destroy(vobj);
-
-            vessel.OnAutopilotUpdate -= MouseAimPilot;
+            //if (vobj)
+            //    GameObject.Destroy(vobj);
+            if(vessel)
+                vessel.OnAutopilotUpdate -= MouseAimPilot;
         }
+
+
     }
 }
