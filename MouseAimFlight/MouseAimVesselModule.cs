@@ -199,13 +199,21 @@ namespace MouseAimFlight
             GUILayout.EndHorizontal();
         }
 
-        void LateUpdate()
+        void Update()
         {
             if (Input.GetKeyDown(KeyCode.P))
             {
                 mouseAimActive = !mouseAimActive;
-                Screen.showCursor = !mouseAimActive;
-                Screen.lockCursor = !mouseAimActive;
+                if(mouseAimActive)
+                {
+                    Screen.lockCursor = true;
+                    Screen.showCursor = false;
+                }
+                else
+                {
+                    Screen.lockCursor = false;
+                    Screen.showCursor = true;
+                }
                 targetPosition = vesselTransform.up * 5000f;     //if it's activated, set it to the baseline
                 UpdateCursorScreenLocation();
             }
@@ -224,23 +232,22 @@ namespace MouseAimFlight
                 return;
 
             vesselTransform = vessel.ReferenceTransform;
-            UpdateMouseCursorForCameraRotation();
+            //if(!freeLook)
+            //    UpdateMouseCursorForCameraRotation();
 
             upDirection = VectorUtils.GetUpDirection(vesselTransform.position);
 
             FlyToPosition(s, targetPosition + vessel.CurrentCoM);
         }
 
-        public void UpdateMouseCursorForCameraRotation()
+        void UpdateMouseCursorForCameraRotation()
         {
             Vector3 mouseDelta;
-            bool freeLook = Input.GetMouseButton(2);
 
-
-            if (freeLook)
+            if (Mouse.Right.GetButton())
                 mouseDelta = Vector3.zero;
             else
-                mouseDelta = new Vector3(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y")) * 25;
+                mouseDelta = new Vector3(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y")) * 100;
 
             Transform cameraTransform = FlightCamera.fetch.mainCamera.transform;
 
