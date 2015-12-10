@@ -12,7 +12,7 @@ namespace MouseAimFlight
         float pitchP = 0.2f, pitchI = 0.1f, pitchD = 0.08f;
         float yawP = 0.035f, yawI = 0.008f, yawD = 0.04f;
         float rollP = 0.01f, rollI = 0.5f, rollD = 0.005f;
-        float upWeighting = 10f;
+        float upWeighting = 3f;
 
         string pitchPstr, pitchIstr, pitchDstr;
         string yawPstr, yawIstr, yawDstr;
@@ -341,6 +341,16 @@ namespace MouseAimFlight
             rollTarget = Vector3.ProjectOnPlane(rollTarget, vesselTransform.up);
 
             float rollError = VectorUtils.SignedAngle(currentRoll, rollTarget, vesselTransform.right);
+
+            float rollFactor = Vector3.Dot(currentRoll, rollTarget);
+            if(rollFactor < 0 && rollFactor > -200 && Vector3.Dot(rollTarget.normalized, upDirection) < 0.95f)
+            {
+                if (rollError < -120)
+                    rollError += 180f;
+                else if (rollError > 120)
+                    rollError -= 180f;
+            }
+
             if (Math.Abs(rollError) > 20)
                 rollPID.ZeroIntegral();
             
