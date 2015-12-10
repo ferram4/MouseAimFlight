@@ -237,7 +237,7 @@ namespace MouseAimFlight
 
             upDirection = VectorUtils.GetUpDirection(vesselTransform.position);
 
-            FlyToPosition(s, targetPosition + vessel.CurrentCoM);
+            FlyToPosition(s, targetPosition + vessel.CoM);
         }
 
         void UpdateMouseCursorForCameraRotation()
@@ -261,13 +261,13 @@ namespace MouseAimFlight
 
         void UpdateCursorScreenLocation()
         {
-            mouseAimScreenLocation = FlightCamera.fetch.mainCamera.WorldToScreenPoint(targetPosition + vessel.CurrentCoM);
+            mouseAimScreenLocation = FlightCamera.fetch.mainCamera.WorldToScreenPoint(targetPosition + vessel.CoM);
         }
 
         void UpdateVesselScreenLocation()
         {
             vesselForwardScreenLocation = vesselTransform.up * 5000f;
-            vesselForwardScreenLocation = FlightCamera.fetch.mainCamera.WorldToScreenPoint(vesselForwardScreenLocation + vessel.CurrentCoM);
+            vesselForwardScreenLocation = FlightCamera.fetch.mainCamera.WorldToScreenPoint(vesselForwardScreenLocation + vessel.CoM);
         }
 
         void FlyToPosition(FlightCtrlState s, Vector3 targetPosition)
