@@ -28,6 +28,7 @@ namespace MouseAimFlight
         //float rollIntegrator;
 
         bool mouseAimActive = false;
+        bool prevFreeLook = false;
         
         Vector3 upDirection;
         Vector3 targetPosition;
@@ -224,6 +225,7 @@ namespace MouseAimFlight
             UpdateMouseCursorForCameraRotation();
             UpdateVesselScreenLocation();
             UpdateCursorScreenLocation();
+            CheckResetCursor();
         }
 
         void MouseAimPilot(FlightCtrlState s)
@@ -234,6 +236,9 @@ namespace MouseAimFlight
             vesselTransform = vessel.ReferenceTransform;
             //if(!freeLook)
             //    UpdateMouseCursorForCameraRotation();
+
+            if (s.roll != s.rollTrim || s.pitch != s.pitchTrim || s.yaw != s.yawTrim)
+                return;
 
             upDirection = VectorUtils.GetUpDirection(vesselTransform.position);
 
@@ -248,6 +253,11 @@ namespace MouseAimFlight
                 mouseDelta = Vector3.zero;
             else
                 mouseDelta = new Vector3(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y")) * 100;
+
+            if ((mouseAimScreenLocation.x < 0 && mouseDelta.x < 0) || (mouseAimScreenLocation.x > Screen.width && mouseDelta.x > 0))
+                mouseDelta.x = 0;
+            if ((mouseAimScreenLocation.y < 0 && mouseDelta.y < 0) || (mouseAimScreenLocation.y > Screen.height && mouseDelta.y > 0))
+                mouseDelta.y = 0;
 
             Transform cameraTransform = FlightCamera.fetch.mainCamera.transform;
 
@@ -268,6 +278,18 @@ namespace MouseAimFlight
         {
             vesselForwardScreenLocation = vesselTransform.up * 5000f;
             vesselForwardScreenLocation = FlightCamera.fetch.mainCamera.WorldToScreenPoint(vesselForwardScreenLocation + vessel.CoM);
+        }
+
+        void CheckResetCursor()
+        {
+            if(!Mouse.Right.GetButton() && prevFreeLook && (mouseAimScreenLocation.z < 0 || mouseAimScreenLocation.x < 0 || mouseAimScreenLocation.x > Screen.width || mouseAimScreenLocation.y < 0 || mouseAimScreenLocation.y > Screen.height))
+            {
+                prevFreeLook = false;
+                targetPosition = FlightCamera.fetch.mainCamera.transform.forward * 5000f;
+                mouseAimScreenLocation = FlightCamera.fetch.mainCamera.WorldToScreenPoint(targetPosition + vessel.CoM);
+            }
+            if (Mouse.Right.GetButton())
+                prevFreeLook = true;
         }
 
         void FlyToPosition(FlightCtrlState s, Vector3 targetPosition)
@@ -304,15 +326,15 @@ namespace MouseAimFlight
             pitchError = VectorUtils.SignedAngle(Vector3.up, Vector3.ProjectOnPlane(targetDirection, Vector3.right), Vector3.back);
             yawError = VectorUtils.SignedAngle(Vector3.up, Vector3.ProjectOnPlane(targetDirectionYaw, Vector3.forward), Vector3.right);
 
-            bool updateGains = GetRadarAltitude() > 15;
+            bool nearGround = GetRadarAltitude() < 10;
 
-            float steerPitch = pitchPID.Simulate(pitchError, localAngVel.x, TimeWarp.fixedDeltaTime, updateGains);
-            float steerYaw = yawPID.Simulate(yawError, localAngVel.z, TimeWarp.fixedDeltaTime, updateGains);
+            float steerPitch = pitchPID.Simulate(pitchError, localAngVel.x, TimeWarp.fixedDeltaTime, nearGround);
+            float steerYaw = yawPID.Simulate(yawError, localAngVel.z, TimeWarp.fixedDeltaTime, nearGround);
 
             pitchPID.ClampIntegral(TimeWarp.fixedDeltaTime / pitchPID.ki);
             yawPID.ClampIntegral(TimeWarp.fixedDeltaTime / yawPID.ki);
 
-            if (updateGains)
+            if (nearGround)
             {
                 pitchPID.ZeroIntegral();
                 yawPID.ZeroIntegral();
@@ -333,7 +355,7 @@ namespace MouseAimFlight
             Vector3 currentRoll = -vesselTransform.forward;
             Vector3 rollTarget;
 
-            if (GetRadarAltitude() > 10)
+            if (!nearGround)
                 rollTarget = (targetPosition + upWeighting * (75f - yawError * 1f) * upDirection) - vesselTransform.position;
             else
                 rollTarget = upDirection;
@@ -355,7 +377,7 @@ namespace MouseAimFlight
                 rollPID.ZeroIntegral();
             
             //debugString += "\nRoll offset: " + rollError;
-            float steerRoll = rollPID.Simulate(rollError, localAngVel.y, TimeWarp.fixedDeltaTime, updateGains);
+            float steerRoll = rollPID.Simulate(rollError, localAngVel.y, TimeWarp.fixedDeltaTime, nearGround);
             //debugString += "\nSteerRoll: " + steerRoll;
             //float rollDamping = (rollD * -localAngVel.y);
             //steerRoll -= rollDamping;
@@ -364,9 +386,7 @@ namespace MouseAimFlight
             rollPID.ClampIntegral(TimeWarp.fixedDeltaTime / rollPID.ki);
 
             float roll = Mathf.Clamp(steerRoll, -1, 1);
-            if(s.roll == s.rollTrim)
-                s.roll = roll;
-            
+            s.roll = roll;
         }
 
         float GetRadarAltitude()
