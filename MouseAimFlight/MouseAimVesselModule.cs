@@ -356,7 +356,7 @@ namespace MouseAimFlight
             Vector3 rollTarget;
 
             if (!nearGround)
-                rollTarget = (targetPosition + upWeighting * (75f - yawError * 1f) * upDirection) - vesselTransform.position;
+                rollTarget = (targetPosition + upWeighting * (75f - yawError * 1f) * upDirection) - vessel.CoM;
             else
                 rollTarget = upDirection;
 
@@ -365,7 +365,7 @@ namespace MouseAimFlight
             float rollError = VectorUtils.SignedAngle(currentRoll, rollTarget, vesselTransform.right);
 
             float rollFactor = Vector3.Dot(currentRoll, rollTarget);
-            if(rollFactor < 0 && rollFactor > -200 && Vector3.Dot(rollTarget.normalized, upDirection) < 0.95f)
+            if(rollFactor < 0 && rollFactor > -200 && Vector3.Dot(rollTarget.normalized, Vector3.ProjectOnPlane(upDirection, vesselTransform.up).normalized) < 0.95f)
             {
                 if (rollError < -120)
                     rollError += 180f;
