@@ -282,11 +282,14 @@ namespace MouseAimFlight
 
         void CheckResetCursor()
         {
-            if(!Mouse.Right.GetButton() && prevFreeLook && (mouseAimScreenLocation.z < 0 || mouseAimScreenLocation.x < 0 || mouseAimScreenLocation.x > Screen.width || mouseAimScreenLocation.y < 0 || mouseAimScreenLocation.y > Screen.height))
+            if(!Mouse.Right.GetButton() && prevFreeLook)
             {
                 prevFreeLook = false;
-                targetPosition = FlightCamera.fetch.mainCamera.transform.forward * 5000f;
-                mouseAimScreenLocation = FlightCamera.fetch.mainCamera.WorldToScreenPoint(targetPosition + vessel.CoM);
+                if ((mouseAimScreenLocation.z < 0 || mouseAimScreenLocation.x < 0 || mouseAimScreenLocation.x > Screen.width || mouseAimScreenLocation.y < 0 || mouseAimScreenLocation.y > Screen.height))
+                {
+                    targetPosition = FlightCamera.fetch.mainCamera.transform.forward * 5000f;
+                    mouseAimScreenLocation = FlightCamera.fetch.mainCamera.WorldToScreenPoint(targetPosition + vessel.CoM);
+                }
             }
             if (Mouse.Right.GetButton())
                 prevFreeLook = true;
@@ -364,14 +367,14 @@ namespace MouseAimFlight
 
             float rollError = VectorUtils.SignedAngle(currentRoll, rollTarget, vesselTransform.right);
 
-            float rollFactor = Vector3.Dot(currentRoll, rollTarget);
+            /*float rollFactor = Vector3.Dot(currentRoll, rollTarget);
             if(rollFactor < 0 && rollFactor > -200 && Vector3.Dot(rollTarget.normalized, Vector3.ProjectOnPlane(upDirection, vesselTransform.up).normalized) < 0.95f)
             {
                 if (rollError < -120)
                     rollError += 180f;
                 else if (rollError > 120)
                     rollError -= 180f;
-            }
+            }*/
 
             if (Math.Abs(rollError) > 20)
                 rollPID.ZeroIntegral();
