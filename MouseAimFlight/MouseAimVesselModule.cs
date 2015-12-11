@@ -282,11 +282,14 @@ namespace MouseAimFlight
 
         void CheckResetCursor()
         {
-            if(!Mouse.Right.GetButton() && prevFreeLook && (mouseAimScreenLocation.z < 0 || mouseAimScreenLocation.x < 0 || mouseAimScreenLocation.x > Screen.width || mouseAimScreenLocation.y < 0 || mouseAimScreenLocation.y > Screen.height))
+            if(!Mouse.Right.GetButton() && prevFreeLook)
             {
                 prevFreeLook = false;
-                targetPosition = FlightCamera.fetch.mainCamera.transform.forward * 5000f;
-                mouseAimScreenLocation = FlightCamera.fetch.mainCamera.WorldToScreenPoint(targetPosition + vessel.CoM);
+                if ((mouseAimScreenLocation.z < 0 || mouseAimScreenLocation.x < 0 || mouseAimScreenLocation.x > Screen.width || mouseAimScreenLocation.y < 0 || mouseAimScreenLocation.y > Screen.height))
+                {
+                    targetPosition = FlightCamera.fetch.mainCamera.transform.forward * 5000f;
+                    mouseAimScreenLocation = FlightCamera.fetch.mainCamera.WorldToScreenPoint(targetPosition + vessel.CoM);
+                }
             }
             if (Mouse.Right.GetButton())
                 prevFreeLook = true;
