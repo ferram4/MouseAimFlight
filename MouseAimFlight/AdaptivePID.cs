@@ -36,18 +36,22 @@ namespace MouseAimFlight
 
             integral += error * timeStep;
 
+            Clamp(ref integral, 1 / (ki*5));
+
             if (updateGains)
                 AdaptGains(timeStep, error);
+            else
+                ZeroIntegral();
 
             return outputP * kp + outputI * ki + outputD * kd;
         }
 
-        public void ClampIntegral(float limit)
+        public void Clamp(ref float value, float limit)
         {
-            if (integral > limit)
-                integral = limit;
-            if (integral < -limit)
-                integral = -limit;
+            if (value > limit)
+                value = limit;
+            if (value < -limit)
+                value = -limit;
         }
 
         public void ZeroIntegral()
