@@ -364,14 +364,14 @@ namespace MouseAimFlight
 
             float rollError = VectorUtils.SignedAngle(currentRoll, rollTarget, vesselTransform.right);
 
-            float rollFactor = Vector3.Dot(currentRoll, rollTarget);
+            /*float rollFactor = Vector3.Dot(currentRoll, rollTarget);
             if(rollFactor < 0 && rollFactor > -200 && Vector3.Dot(rollTarget.normalized, Vector3.ProjectOnPlane(upDirection, vesselTransform.up).normalized) < 0.95f)
             {
                 if (rollError < -120)
                     rollError += 180f;
                 else if (rollError > 120)
                     rollError -= 180f;
-            }
+            }*/
 
             if (Math.Abs(rollError) > 20)
                 rollPID.ZeroIntegral();
