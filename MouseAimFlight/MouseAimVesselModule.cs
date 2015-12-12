@@ -9,9 +9,9 @@ namespace MouseAimFlight
         Vessel vessel;
         Transform vesselTransform;
 
-        float pitchP = 0.2f, pitchI = 0.1f, pitchD = 0.08f;
-        float yawP = 0.035f, yawI = 0.008f, yawD = 0.04f;
-        float rollP = 0.01f, rollI = 0.5f, rollD = 0.005f;
+        float pitchP = 0.2f, pitchI = 0.01f, pitchD = 0.08f;
+        float yawP = 0.035f, yawI = 0.004f, yawD = 0.04f;
+        float rollP = 0.01f, rollI = 0.01f, rollD = 0.005f;
         float upWeighting = 3f;
 
         string pitchPstr, pitchIstr, pitchDstr;
@@ -334,18 +334,9 @@ namespace MouseAimFlight
 
             bool nearGround = GetRadarAltitude() < 10;
 
-            float steerPitch = pitchPID.Simulate(pitchError, localAngVel.x, TimeWarp.fixedDeltaTime, nearGround);
-            float steerYaw = yawPID.Simulate(yawError, localAngVel.z, TimeWarp.fixedDeltaTime, nearGround);
+            float steerPitch = pitchPID.Simulate(pitchError, localAngVel.x, TimeWarp.fixedDeltaTime, !nearGround);
+            float steerYaw = yawPID.Simulate(yawError, localAngVel.z, TimeWarp.fixedDeltaTime, !nearGround);
 
-            pitchPID.ClampIntegral(TimeWarp.fixedDeltaTime / pitchPID.ki);
-            yawPID.ClampIntegral(TimeWarp.fixedDeltaTime / yawPID.ki);
-
-            if (nearGround)
-            {
-                pitchPID.ZeroIntegral();
-                yawPID.ZeroIntegral();
-                rollPID.ZeroIntegral();
-            }
             if (Math.Abs(pitchError) > 20)
                 pitchPID.ZeroIntegral();
             if (Math.Abs(yawError) > 20)
@@ -388,8 +379,6 @@ namespace MouseAimFlight
             //float rollDamping = (rollD * -localAngVel.y);
             //steerRoll -= rollDamping;
             //debugString += "\nRollDamping: " + rollDamping;
-
-            rollPID.ClampIntegral(TimeWarp.fixedDeltaTime / rollPID.ki);
 
             float roll = Mathf.Clamp(steerRoll, -1, 1);
             s.roll = roll;
