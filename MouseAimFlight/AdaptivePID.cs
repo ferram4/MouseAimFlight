@@ -61,6 +61,16 @@ namespace MouseAimFlight
             integral = 0;
         }
 
+        public void DebugString(ref string debugString, string name)
+        {
+            debugString += name + " errors:\n";
+            debugString += "p: " + outputP.ToString("N7") + "\ti: " + outputI.ToString("N7") + "\td: " + outputD.ToString("N8") + "\n";
+            debugString += name + " gains:\n";
+            debugString += "p: " + kp.ToString("N7") + "\ti: " + ki.ToString("N7") + "\td: " + kd.ToString("N7") + "\n";
+            debugString += name + " error*gains:\n";
+            debugString += "p: " + (kp * outputP).ToString("N7") + "\ti: " + (ki * outputI).ToString("N7") + "\td: " + (kd * outputD).ToString("N8");
+        }
+
         void AdaptGains(float timeStep, float error)
         {
             kp = initKp;

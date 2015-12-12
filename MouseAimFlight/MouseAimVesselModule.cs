@@ -29,6 +29,7 @@ namespace MouseAimFlight
 
         bool mouseAimActive = false;
         bool prevFreeLook = false;
+        string debugLabel;
         
         Vector3 upDirection;
         Vector3 targetPosition;
@@ -102,6 +103,8 @@ namespace MouseAimFlight
 
                 GUI.DrawTexture(directionRect, vesselForwardReticle);
 
+                GUI.Label(new Rect(200, 200, 1200, 800), debugLabel);
+                
             }
             else if(vessel == FlightGlobals.ActiveVessel)
                 debugRect = GUILayout.Window(this.GetHashCode(), debugRect, DebugPIDGUI, "");
@@ -236,13 +239,18 @@ namespace MouseAimFlight
             vesselTransform = vessel.ReferenceTransform;
             //if(!freeLook)
             //    UpdateMouseCursorForCameraRotation();
-
+            debugLabel = "";
             if (s.roll != s.rollTrim || s.pitch != s.pitchTrim || s.yaw != s.yawTrim)
                 return;
 
             upDirection = VectorUtils.GetUpDirection(vesselTransform.position);
 
             FlyToPosition(s, targetPosition + vessel.CoM);
+            pitchPID.DebugString(ref debugLabel, "pitch");
+            debugLabel += "\n\n";
+            yawPID.DebugString(ref debugLabel, "yaw");
+            debugLabel += "\n\n";
+            rollPID.DebugString(ref debugLabel, "roll");
         }
 
         void UpdateMouseCursorForCameraRotation()
