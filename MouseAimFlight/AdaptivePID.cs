@@ -30,20 +30,22 @@ namespace MouseAimFlight
 
         public float Simulate(float error, float derivError, float timeStep, bool updateGains)
         {
-            outputP = error;
-            outputI = integral;
-            outputD = derivError;
-
             integral += error * timeStep;
 
-            Clamp(ref integral, 1 / (ki*5));
+            Clamp(ref integral, 1);
 
             if (updateGains)
                 AdaptGains(timeStep, error);
             else
                 ZeroIntegral();
 
-            return outputP * kp + outputI * ki + outputD * kd;
+            outputP = error * kp;
+            outputI = integral * ki;
+            outputD = derivError * kd;
+            //Now we can work with the outputs
+            Clamp(ref outputI, 0.2f);
+
+            return outputP + outputI + outputD;
         }
 
         public void Clamp(ref float value, float limit)
