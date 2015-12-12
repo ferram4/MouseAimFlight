@@ -29,6 +29,7 @@ namespace MouseAimFlight
 
         bool mouseAimActive = false;
         bool prevFreeLook = false;
+        string debugLabel;
         
         Vector3 upDirection;
         Vector3 targetPosition;
@@ -102,6 +103,8 @@ namespace MouseAimFlight
 
                 GUI.DrawTexture(directionRect, vesselForwardReticle);
 
+                GUI.Label(new Rect(200, 800, 400, 400), debugLabel);
+                
             }
             else if(vessel == FlightGlobals.ActiveVessel)
                 debugRect = GUILayout.Window(this.GetHashCode(), debugRect, DebugPIDGUI, "");
