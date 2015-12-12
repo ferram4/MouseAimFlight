@@ -103,7 +103,7 @@ namespace MouseAimFlight
 
                 GUI.DrawTexture(directionRect, vesselForwardReticle);
 
-                GUI.Label(new Rect(200, 200, 600, 800), debugLabel);
+                GUI.Label(new Rect(200, 200, 1200, 800), debugLabel);
                 
             }
             else if(vessel == FlightGlobals.ActiveVessel)
