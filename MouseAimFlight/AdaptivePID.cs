@@ -59,6 +59,16 @@ namespace MouseAimFlight
             integral = 0;
         }
 
+        public void DebugString(ref string debugString, string name)
+        {
+            debugString += name + " errors:\n";
+            debugString += "p: " + outputP + "\ti: " + outputI + "\td: " + outputD + "\n";
+            debugString += name + " gains:\n";
+            debugString += "p: " + kp + "\ti: " + ki + "\td: " + kd + "\n";
+            debugString += name + " error*gains:\n";
+            debugString += "p: " + kp * outputP + "\ti: " + ki * outputI + "\td: " + kd * outputD;
+        }
+
         void AdaptGains(float timeStep, float error)
         {
             kp = initKp;
