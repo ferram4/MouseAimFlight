@@ -9,8 +9,8 @@ namespace MouseAimFlight
         Vessel vessel;
         Transform vesselTransform;
 
-        float pitchP = 0.2f, pitchI = 0.01f, pitchD = 0.08f;
-        float yawP = 0.035f, yawI = 0.004f, yawD = 0.04f;
+        float pitchP = 0.2f, pitchI = 0.1f, pitchD = 0.08f;
+        float yawP = 0.035f, yawI = 0.1f, yawD = 0.04f;
         float rollP = 0.01f, rollI = 0.01f, rollD = 0.005f;
         float upWeighting = 3f;
 
@@ -103,6 +103,7 @@ namespace MouseAimFlight
 
                 GUI.DrawTexture(directionRect, vesselForwardReticle);
 
+                GUI.contentColor = Color.black;
                 GUI.Label(new Rect(200, 200, 1200, 800), debugLabel);
                 
             }
@@ -379,7 +380,7 @@ namespace MouseAimFlight
                 rollPID.ZeroIntegral();
             
             //debugString += "\nRoll offset: " + rollError;
-            float steerRoll = rollPID.Simulate(rollError, localAngVel.y, TimeWarp.fixedDeltaTime, nearGround);
+            float steerRoll = rollPID.Simulate(rollError, localAngVel.y, TimeWarp.fixedDeltaTime, !nearGround);
             //debugString += "\nSteerRoll: " + steerRoll;
             //float rollDamping = (rollD * -localAngVel.y);
             //steerRoll -= rollDamping;
