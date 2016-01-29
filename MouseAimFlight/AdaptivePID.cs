@@ -9,8 +9,10 @@ namespace MouseAimFlight
     class AdaptivePID
     {
         public float kp, ki, kd;
-        float outputP, outputI, outputD;
+        float outputP, outputI, outputD, output;
         float initKp, initKi, initKd;
+
+        float errorP, errorI, errorD; //FOR DEBUGGING PURPOSES
 
         float adaptationCoefficient;
         float integral;
@@ -30,20 +32,30 @@ namespace MouseAimFlight
 
         public float Simulate(float error, float derivError, float timeStep, bool updateGains)
         {
-            outputP = error;
-            outputI = integral;
-            outputD = derivError;
-
+            //Setup
             integral += error * timeStep;
 
-            Clamp(ref integral, 1 / (ki*5));
+            Clamp(ref integral, 0.2f/ki); //limits outputI to 0.2
 
             if (updateGains)
                 AdaptGains(timeStep, error);
-            else
-                ZeroIntegral();
 
-            return outputP * kp + outputI * ki + outputD * kd;
+            //Working with the outputs
+            outputP = error * kp;
+            if (outputP >= 1)
+                ZeroIntegral();
+            outputI = integral * ki;
+            outputD = derivError * kd;
+
+            //Set values for debugging - avoid using them anywhere else
+            errorP = error;
+            errorI = integral;
+            errorD = derivError;
+            output = outputP + outputI + outputD;
+            Clamp(ref output, 1);
+            //-----------------------
+
+            return outputP + outputI + outputD;
         }
 
         public void Clamp(ref float value, float limit)
@@ -62,11 +74,12 @@ namespace MouseAimFlight
         public void DebugString(ref string debugString, string name)
         {
             debugString += name + " errors:\n";
-            debugString += "p: " + outputP.ToString("N7") + "\ti: " + outputI.ToString("N7") + "\td: " + outputD.ToString("N8") + "\n";
+            debugString += "p: " + errorP.ToString("N7") + "\ti: " + errorI.ToString("N7") + "\td: " + errorD.ToString("N8") + "\n";
             debugString += name + " gains:\n";
             debugString += "p: " + kp.ToString("N7") + "\ti: " + ki.ToString("N7") + "\td: " + kd.ToString("N7") + "\n";
             debugString += name + " error*gains:\n";
-            debugString += "p: " + (kp * outputP).ToString("N7") + "\ti: " + (ki * outputI).ToString("N7") + "\td: " + (kd * outputD).ToString("N8");
+            debugString += "p: " + outputP.ToString("N7") + "\ti: " + outputI.ToString("N7") + "\td: " + outputD.ToString("N8") + "\n";
+            debugString += "Output: " + output.ToString("N7");
         }
 
         void AdaptGains(float timeStep, float error)
