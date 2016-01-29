@@ -268,10 +268,10 @@ namespace MouseAimFlight
             else
                 mouseDelta = new Vector3(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y")) * 100;
 
-            if ((mouseAimScreenLocation.x < 0 && mouseDelta.x < 0) || (mouseAimScreenLocation.x > Screen.width && mouseDelta.x > 0))
+            /*if ((mouseAimScreenLocation.x < 0 && mouseDelta.x < 0) || (mouseAimScreenLocation.x > Screen.width && mouseDelta.x > 0))
                 mouseDelta.x = 0;
             if ((mouseAimScreenLocation.y < 0 && mouseDelta.y < 0) || (mouseAimScreenLocation.y > Screen.height && mouseDelta.y > 0))
-                mouseDelta.y = 0;
+                mouseDelta.y = 0;*/
 
             Transform cameraTransform = FlightCamera.fetch.mainCamera.transform;
 
@@ -299,11 +299,11 @@ namespace MouseAimFlight
             if(!Mouse.Right.GetButton() && prevFreeLook)
             {
                 prevFreeLook = false;
-                if ((mouseAimScreenLocation.z < 0 || mouseAimScreenLocation.x < 0 || mouseAimScreenLocation.x > Screen.width || mouseAimScreenLocation.y < 0 || mouseAimScreenLocation.y > Screen.height))
+                /*if ((mouseAimScreenLocation.z < 0 || mouseAimScreenLocation.x < 0 || mouseAimScreenLocation.x > Screen.width || mouseAimScreenLocation.y < 0 || mouseAimScreenLocation.y > Screen.height))
                 {
                     targetPosition = FlightCamera.fetch.mainCamera.transform.forward * 5000f;
                     mouseAimScreenLocation = FlightCamera.fetch.mainCamera.WorldToScreenPoint(targetPosition + vessel.CoM);
-                }
+                }*/
             }
             if (Mouse.Right.GetButton())
                 prevFreeLook = true;
