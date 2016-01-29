@@ -11,8 +11,8 @@ namespace MouseAimFlight
 
         float pitchP = 0.2f, pitchI = 0.1f, pitchD = 0.08f;
         float yawP = 0.035f, yawI = 0.1f, yawD = 0.04f;
-        float rollP = 0.01f, rollI = 0.01f, rollD = 0.005f;
-        float upWeighting = 3f;
+        float rollP = 0.01f, rollI = 0.001f, rollD = 0.005f;
+        float upWeighting = 8f;
 
         string pitchPstr, pitchIstr, pitchDstr;
         string yawPstr, yawIstr, yawDstr;
@@ -63,9 +63,15 @@ namespace MouseAimFlight
             vessel.OnAutopilotUpdate += MouseAimPilot;
 
             if (mouseCursorReticle == null)
-                mouseCursorReticle = GameDatabase.Instance.GetTexture("BDArmory/Textures/greenCircle3", false);
+            {
+                mouseCursorReticle = GameDatabase.Instance.GetTexture("MouseAimFlight/circle", false);
+                mouseCursorReticle.filterMode = FilterMode.Trilinear;
+            }
             if(vesselForwardReticle == null)
-                vesselForwardReticle = GameDatabase.Instance.GetTexture("BDArmory/Textures/greenPointCircle", false);
+            {
+                vesselForwardReticle = GameDatabase.Instance.GetTexture("MouseAimFlight/cross", false);
+                vesselForwardReticle.filterMode = FilterMode.Trilinear;
+            }
 
             pitchDstr = pitchD.ToString();
             pitchIstr = pitchI.ToString();
@@ -93,12 +99,11 @@ namespace MouseAimFlight
         {
             if (vessel == FlightGlobals.ActiveVessel && mouseAimActive)
             {
-                float size = Screen.width / 16;
+                float size = Screen.width / 32;
                 Rect aimRect = new Rect(mouseAimScreenLocation.x - (0.5f * size), (Screen.height - mouseAimScreenLocation.y) - (0.5f * size), size, size);
 
                 GUI.DrawTexture(aimRect, mouseCursorReticle);
 
-                size *= 0.5f;
                 Rect directionRect = new Rect(vesselForwardScreenLocation.x - (0.5f * size), (Screen.height - vesselForwardScreenLocation.y) - (0.5f * size), size, size);
 
                 GUI.DrawTexture(directionRect, vesselForwardReticle);
@@ -343,10 +348,10 @@ namespace MouseAimFlight
             float steerPitch = pitchPID.Simulate(pitchError, localAngVel.x, TimeWarp.fixedDeltaTime, !nearGround);
             float steerYaw = yawPID.Simulate(yawError, localAngVel.z, TimeWarp.fixedDeltaTime, !nearGround);
 
-            if (Math.Abs(pitchError) > 20)
-                pitchPID.ZeroIntegral();
-            if (Math.Abs(yawError) > 20)
-                yawPID.ZeroIntegral();
+            //if (Math.Abs(pitchError) > 20)
+            //    pitchPID.ZeroIntegral();
+            //if (Math.Abs(yawError) > 20)
+            //    yawPID.ZeroIntegral();
 
 
 
@@ -359,7 +364,7 @@ namespace MouseAimFlight
             Vector3 rollTarget;
 
             if (!nearGround)
-                rollTarget = (targetPosition + upWeighting * (75f - yawError * 1f) * upDirection) - vessel.CoM;
+                rollTarget = (targetPosition + upWeighting * (100f -(yawError * 1f) -(pitchError * 0.8f)) * upDirection) - vessel.CoM;
             else
                 rollTarget = upDirection;
 
@@ -376,8 +381,8 @@ namespace MouseAimFlight
                     rollError -= 180f;
             }*/
 
-            if (Math.Abs(rollError) > 20)
-                rollPID.ZeroIntegral();
+            //if (Math.Abs(rollError) > 20)
+            //    rollPID.ZeroIntegral();
             
             //debugString += "\nRoll offset: " + rollError;
             float steerRoll = rollPID.Simulate(rollError, localAngVel.y, TimeWarp.fixedDeltaTime, !nearGround);

@@ -9,7 +9,7 @@ namespace MouseAimFlight
     class AdaptivePID
     {
         public float kp, ki, kd;
-        float outputP, outputI, outputD;
+        float outputP, outputI, outputD, output;
         float initKp, initKi, initKd;
 
         float errorP, errorI, errorD; //FOR DEBUGGING PURPOSES
@@ -35,7 +35,7 @@ namespace MouseAimFlight
             //Setup
             integral += error * timeStep;
 
-            Clamp(ref integral, 0.1f/ki); //limits outputI to 0.1
+            Clamp(ref integral, 0.2f/ki); //limits outputI to 0.2
 
             if (updateGains)
                 AdaptGains(timeStep, error);
@@ -47,10 +47,12 @@ namespace MouseAimFlight
             outputI = integral * ki;
             outputD = derivError * kd;
 
-            //Set errors for debugging - avoid using them anywhere else
+            //Set values for debugging - avoid using them anywhere else
             errorP = error;
             errorI = integral;
             errorD = derivError;
+            output = outputP + outputI + outputD;
+            Clamp(ref output, 1);
             //-----------------------
 
             return outputP + outputI + outputD;
@@ -76,7 +78,8 @@ namespace MouseAimFlight
             debugString += name + " gains:\n";
             debugString += "p: " + kp.ToString("N7") + "\ti: " + ki.ToString("N7") + "\td: " + kd.ToString("N7") + "\n";
             debugString += name + " error*gains:\n";
-            debugString += "p: " + outputP.ToString("N7") + "\ti: " + outputI.ToString("N7") + "\td: " + outputD.ToString("N8");
+            debugString += "p: " + outputP.ToString("N7") + "\ti: " + outputI.ToString("N7") + "\td: " + outputD.ToString("N8") + "\n";
+            debugString += "Output: " + output.ToString("N7");
         }
 
         void AdaptGains(float timeStep, float error)
