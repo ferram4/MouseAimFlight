@@ -64,12 +64,12 @@ namespace MouseAimFlight
 
             if (mouseCursorReticle == null)
             {
-                mouseCursorReticle = GameDatabase.Instance.GetTexture("MouseAimFlight/circle", false);
+                mouseCursorReticle = GameDatabase.Instance.GetTexture("MouseAimFlight/Assets/circle", false);
                 mouseCursorReticle.filterMode = FilterMode.Trilinear;
             }
             if(vesselForwardReticle == null)
             {
-                vesselForwardReticle = GameDatabase.Instance.GetTexture("MouseAimFlight/cross", false);
+                vesselForwardReticle = GameDatabase.Instance.GetTexture("MouseAimFlight/Assets/cross", false);
                 vesselForwardReticle.filterMode = FilterMode.Trilinear;
             }
 
