@@ -47,3 +47,8 @@ UnityEngine.dll
 
 *.v12.suo
 *.suo
+
+TemporaryGeneratedFile*
+MouseAimFlight.csproj.FileListAbsolute.txt
+MouseAimFlight.csprojResolveAssemblyReference.cache
+DesignTimeResolveAssemblyReferencesInput.cache
