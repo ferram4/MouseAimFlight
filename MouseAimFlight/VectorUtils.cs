@@ -6,12 +6,20 @@ namespace MouseAimFlight
 {
     public static class VectorUtils
     {
-        public static float SignedAngle(Vector3 fromDirection, Vector3 toDirection, Vector3 referenceRight)
+        public static Vector3d Vector3dProjectOnPlane(Vector3d vector, Vector3d planeNormal)
         {
-            float angle = Vector3.Angle(fromDirection, toDirection);
-            float sign = Mathf.Sign(Vector3.Dot(toDirection, referenceRight));
-            float finalAngle = sign * angle;
-            return finalAngle;
+            double projectionVal = Vector3d.Dot(vector, planeNormal) / planeNormal.sqrMagnitude;
+            Vector3d projected = projectionVal * planeNormal;
+            return vector - projected;
+        }
+
+
+        public static float SignedAngle(Vector3d fromDirection, Vector3d toDirection, Vector3d referenceRight)
+        {
+            double angle = Vector3d.Angle(fromDirection, toDirection);
+            double sign = Math.Sign(Vector3.Dot(toDirection, referenceRight));
+            double finalAngle = sign * angle;
+            return (float)finalAngle;
         }
 
 

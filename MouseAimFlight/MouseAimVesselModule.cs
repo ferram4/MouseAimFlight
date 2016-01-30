@@ -100,13 +100,19 @@ namespace MouseAimFlight
             if (vessel == FlightGlobals.ActiveVessel && mouseAimActive)
             {
                 float size = Screen.width / 32;
-                Rect aimRect = new Rect(mouseAimScreenLocation.x - (0.5f * size), (Screen.height - mouseAimScreenLocation.y) - (0.5f * size), size, size);
+                if (mouseAimScreenLocation.z > 0)
+                {
+                    Rect aimRect = new Rect(mouseAimScreenLocation.x - (0.5f * size), (Screen.height - mouseAimScreenLocation.y) - (0.5f * size), size, size);
 
-                GUI.DrawTexture(aimRect, mouseCursorReticle);
+                    GUI.DrawTexture(aimRect, mouseCursorReticle);
+                }
 
-                Rect directionRect = new Rect(vesselForwardScreenLocation.x - (0.5f * size), (Screen.height - vesselForwardScreenLocation.y) - (0.5f * size), size, size);
+                if (vesselForwardScreenLocation.z > 0)
+                {
+                    Rect directionRect = new Rect(vesselForwardScreenLocation.x - (0.5f * size), (Screen.height - vesselForwardScreenLocation.y) - (0.5f * size), size, size);
 
-                GUI.DrawTexture(directionRect, vesselForwardReticle);
+                    GUI.DrawTexture(directionRect, vesselForwardReticle);
+                }
 
                 GUI.contentColor = Color.black;
                 GUI.Label(new Rect(200, 200, 1200, 800), debugLabel);
@@ -228,7 +234,7 @@ namespace MouseAimFlight
                 UpdateCursorScreenLocation();
             }
 
-            if (vessel != FlightGlobals.ActiveVessel || !mouseAimActive)
+            if (vessel != FlightGlobals.ActiveVessel || !mouseAimActive || PauseMenu.isOpen)
                 return;
 
             UpdateMouseCursorForCameraRotation();
@@ -239,7 +245,7 @@ namespace MouseAimFlight
 
         void MouseAimPilot(FlightCtrlState s)
         {
-            if (vessel != FlightGlobals.ActiveVessel || !mouseAimActive)
+            if (vessel != FlightGlobals.ActiveVessel || !mouseAimActive || PauseMenu.isOpen)
                 return;
 
             vesselTransform = vessel.ReferenceTransform;
@@ -319,14 +325,14 @@ namespace MouseAimFlight
             velocityTransform.rotation = Quaternion.AngleAxis(90, velocityTransform.right) * velocityTransform.rotation;
             Vector3 localAngVel = vessel.angularVelocity * Mathf.Rad2Deg;
 
-            Vector3 targetDirection;
-            Vector3 targetDirectionYaw;
+            Vector3d targetDirection;
+            Vector3d targetDirectionYaw;
             float yawError;
             float pitchError;
             //if (steerMode == SteerModes.NormalFlight)
             
                 targetDirection = vesselTransform.InverseTransformDirection(targetPosition - velocityTransform.position).normalized;
-                targetDirection = Vector3.RotateTowards(Vector3.up, targetDirection, 45 * Mathf.Deg2Rad, 0);
+                //targetDirection = Vector3.RotateTowards(Vector3.up, targetDirection, 45 * Mathf.Deg2Rad, 0);
 
                 //targetDirectionYaw = vesselTransform.InverseTransformDirection(srfVel).normalized;
                 //targetDirectionYaw = Vector3.RotateTowards(Vector3.up, targetDirectionYaw, 45 * Mathf.Deg2Rad, 0);
@@ -340,8 +346,8 @@ namespace MouseAimFlight
                 targetDirectionYaw = targetDirection;
             }*/
 
-            pitchError = VectorUtils.SignedAngle(Vector3.up, Vector3.ProjectOnPlane(targetDirection, Vector3.right), Vector3.back);
-            yawError = VectorUtils.SignedAngle(Vector3.up, Vector3.ProjectOnPlane(targetDirectionYaw, Vector3.forward), Vector3.right);
+            pitchError = (float)Math.Asin(Vector3d.Dot(Vector3d.back, VectorUtils.Vector3dProjectOnPlane(targetDirection, Vector3d.right))) * Mathf.Rad2Deg;//VectorUtils.SignedAngle(Vector3d.up, VectorUtils.Vector3dProjectOnPlane(targetDirection, Vector3d.right), Vector3d.back);
+            yawError = (float)Math.Asin(Vector3d.Dot(Vector3d.right, VectorUtils.Vector3dProjectOnPlane(targetDirectionYaw, Vector3d.forward))) * Mathf.Rad2Deg;//VectorUtils.SignedAngle(Vector3d.up, VectorUtils.Vector3dProjectOnPlane(targetDirectionYaw, Vector3d.forward), Vector3d.right);
 
             bool nearGround = GetRadarAltitude() < 10;
 
