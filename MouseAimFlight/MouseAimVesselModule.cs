@@ -27,6 +27,7 @@ namespace MouseAimFlight
         //float yawIntegrator;
         //float rollIntegrator;
 
+        static Vessel prevActiveVessel = null;
         bool mouseAimActive = false;
         bool prevFreeLook = false;
         string debugLabel;
@@ -217,7 +218,21 @@ namespace MouseAimFlight
 
         void Update()
         {
-            if (Input.GetKeyDown(KeyCode.P))
+            if (vessel == FlightGlobals.ActiveVessel && vessel != prevActiveVessel)
+            {
+                prevActiveVessel = vessel;
+                if (mouseAimActive)
+                {
+                    Screen.lockCursor = true;
+                    Screen.showCursor = false;
+                }
+                else
+                {
+                    Screen.lockCursor = false;
+                    Screen.showCursor = true;
+                }
+            }
+            else if (Input.GetKeyDown(KeyCode.P))
             {
                 mouseAimActive = !mouseAimActive;
                 if(mouseAimActive)
