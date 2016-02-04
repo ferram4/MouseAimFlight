@@ -267,7 +267,7 @@ namespace MouseAimFlight
             //if(!freeLook)
             //    UpdateMouseCursorForCameraRotation();
             debugLabel = "";
-            if (s.roll != s.rollTrim || s.pitch != s.pitchTrim || s.yaw != s.yawTrim)
+            if (s.pitch != s.pitchTrim || s.yaw != s.yawTrim)
                 return;
 
             upDirection = VectorUtils.GetUpDirection(vesselTransform.position);
@@ -379,41 +379,43 @@ namespace MouseAimFlight
             s.yaw = Mathf.Clamp(steerYaw, -1, 1);
             s.pitch = Mathf.Clamp(steerPitch, -1, 1);
 
-
-            //roll
-            Vector3 currentRoll = -vesselTransform.forward;
-            Vector3 rollTarget;
-
-            if (!nearGround)
-                rollTarget = (targetPosition + upWeighting * (100f -(yawError * 1f) -(pitchError * 0.8f)) * upDirection) - vessel.CoM;
-            else
-                rollTarget = upDirection;
-
-            rollTarget = Vector3.ProjectOnPlane(rollTarget, vesselTransform.up);
-
-            float rollError = VectorUtils.SignedAngle(currentRoll, rollTarget, vesselTransform.right);
-
-            /*float rollFactor = Vector3.Dot(currentRoll, rollTarget);
-            if(rollFactor < 0 && rollFactor > -200 && Vector3.Dot(rollTarget.normalized, Vector3.ProjectOnPlane(upDirection, vesselTransform.up).normalized) < 0.95f)
+            if (s.roll == s.rollTrim)
             {
-                if (rollError < -120)
-                    rollError += 180f;
-                else if (rollError > 120)
-                    rollError -= 180f;
-            }*/
+                //roll
+                Vector3 currentRoll = -vesselTransform.forward;
+                Vector3 rollTarget;
 
-            //if (Math.Abs(rollError) > 20)
-            //    rollPID.ZeroIntegral();
-            
-            //debugString += "\nRoll offset: " + rollError;
-            float steerRoll = rollPID.Simulate(rollError, localAngVel.y, TimeWarp.fixedDeltaTime, !nearGround);
-            //debugString += "\nSteerRoll: " + steerRoll;
-            //float rollDamping = (rollD * -localAngVel.y);
-            //steerRoll -= rollDamping;
-            //debugString += "\nRollDamping: " + rollDamping;
+                if (!nearGround)
+                    rollTarget = (targetPosition + Mathf.Clamp(upWeighting * (100f - (yawError * 1.6f) - (pitchError * 2.8f)), 0, float.PositiveInfinity) * upDirection) - vessel.CoM;
+                else
+                    rollTarget = upDirection;
 
-            float roll = Mathf.Clamp(steerRoll, -1, 1);
-            s.roll = roll;
+                rollTarget = Vector3.ProjectOnPlane(rollTarget, vesselTransform.up);
+
+                float rollError = VectorUtils.SignedAngle(currentRoll, rollTarget, vesselTransform.right);
+
+                /*float rollFactor = Vector3.Dot(currentRoll, rollTarget);
+                if(rollFactor < 0 && rollFactor > -200 && Vector3.Dot(rollTarget.normalized, Vector3.ProjectOnPlane(upDirection, vesselTransform.up).normalized) < 0.95f)
+                {
+                    if (rollError < -120)
+                        rollError += 180f;
+                    else if (rollError > 120)
+                        rollError -= 180f;
+                }*/
+
+                //if (Math.Abs(rollError) > 20)
+                //    rollPID.ZeroIntegral();
+
+                //debugString += "\nRoll offset: " + rollError;
+                float steerRoll = rollPID.Simulate(rollError, localAngVel.y, TimeWarp.fixedDeltaTime, !nearGround);
+                //debugString += "\nSteerRoll: " + steerRoll;
+                //float rollDamping = (rollD * -localAngVel.y);
+                //steerRoll -= rollDamping;
+                //debugString += "\nRollDamping: " + rollDamping;
+
+                float roll = Mathf.Clamp(steerRoll, -1, 1);
+                s.roll = roll;
+            }
         }
 
         float GetRadarAltitude()
