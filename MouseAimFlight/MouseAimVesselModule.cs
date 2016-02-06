@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 
 namespace MouseAimFlight
@@ -29,7 +30,9 @@ namespace MouseAimFlight
 
         static Vessel prevActiveVessel = null;
         bool mouseAimActive = false;
-        bool prevFreeLook = false;
+        static bool freeLook = false;
+        static bool prevFreeLook = false;
+        static FieldInfo freeLookKSPCameraField = null;
         string debugLabel;
         
         Vector3 upDirection;
@@ -94,6 +97,10 @@ namespace MouseAimFlight
 
             vesselTransform = vessel.ReferenceTransform;
             targetPosition = vesselTransform.up * 5000;     //if it's activated, set it to the baseline
+
+            FieldInfo[] cameraMouseLookStaticFields = typeof(CameraMouseLook).GetFields(BindingFlags.NonPublic | BindingFlags.Static);
+            freeLookKSPCameraField = cameraMouseLookStaticFields[0];
+            
         }
 
         void OnGUI()
@@ -235,7 +242,7 @@ namespace MouseAimFlight
             else if (Input.GetKeyDown(KeyCode.P))
             {
                 mouseAimActive = !mouseAimActive;
-                if(mouseAimActive)
+                if (mouseAimActive)
                 {
                     Screen.lockCursor = true;
                     Screen.showCursor = false;
@@ -255,6 +262,10 @@ namespace MouseAimFlight
             UpdateMouseCursorForCameraRotation();
             UpdateVesselScreenLocation();
             UpdateCursorScreenLocation();
+        }
+
+        void LateUpdate()
+        {
             CheckResetCursor();
         }
 
@@ -284,7 +295,7 @@ namespace MouseAimFlight
         {
             Vector3 mouseDelta;
 
-            if (Mouse.Right.GetButton())
+            if (freeLook)
                 mouseDelta = Vector3.zero;
             else
                 mouseDelta = new Vector3(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y")) * 100;
@@ -317,17 +328,21 @@ namespace MouseAimFlight
 
         void CheckResetCursor()
         {
-            if(!Mouse.Right.GetButton() && prevFreeLook)
+            prevFreeLook = freeLook;
+            if (!Mouse.Right.GetButton() && freeLook)
             {
-                prevFreeLook = false;
-                /*if ((mouseAimScreenLocation.z < 0 || mouseAimScreenLocation.x < 0 || mouseAimScreenLocation.x > Screen.width || mouseAimScreenLocation.y < 0 || mouseAimScreenLocation.y > Screen.height))
-                {
-                    targetPosition = FlightCamera.fetch.mainCamera.transform.forward * 5000f;
-                    mouseAimScreenLocation = FlightCamera.fetch.mainCamera.WorldToScreenPoint(targetPosition + vessel.CoM);
-                }*/
+                freeLook = false;
             }
             if (Mouse.Right.GetButton())
-                prevFreeLook = true;
+                freeLook = true;
+
+            freeLook |= (bool)freeLookKSPCameraField.GetValue(null);
+
+            if(freeLook != prevFreeLook && mouseAimActive)
+            {
+                Screen.lockCursor = true;
+                Screen.showCursor = false;
+            }
         }
 
         void FlyToPosition(FlightCtrlState s, Vector3 targetPosition)
