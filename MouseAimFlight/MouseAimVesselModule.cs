@@ -32,6 +32,7 @@ namespace MouseAimFlight
         bool mouseAimActive = false;
         static bool freeLook = false;
         static bool prevFreeLook = false;
+        static bool forceCursorResetNextFrame = false;
         static FieldInfo freeLookKSPCameraField = null;
         string debugLabel;
         
@@ -105,7 +106,7 @@ namespace MouseAimFlight
 
         void OnGUI()
         {
-            if (vessel == FlightGlobals.ActiveVessel && mouseAimActive)
+            if (vessel == FlightGlobals.ActiveVessel && mouseAimActive && !MapView.MapIsEnabled)
             {
                 float size = Screen.width / 32;
                 if (mouseAimScreenLocation.z > 0)
@@ -256,8 +257,14 @@ namespace MouseAimFlight
                 UpdateCursorScreenLocation();
             }
 
-            if (vessel != FlightGlobals.ActiveVessel || !mouseAimActive || PauseMenu.isOpen)
+            if (vessel != FlightGlobals.ActiveVessel || !mouseAimActive)
                 return;
+
+            if(PauseMenu.isOpen)
+            {
+                forceCursorResetNextFrame = true;
+                return;
+            }
 
             UpdateMouseCursorForCameraRotation();
             UpdateVesselScreenLocation();
@@ -328,6 +335,9 @@ namespace MouseAimFlight
 
         void CheckResetCursor()
         {
+            if (MapView.MapIsEnabled || PauseMenu.isOpen)
+                return;
+
             prevFreeLook = freeLook;
             if (!Mouse.Right.GetButton() && freeLook)
             {
@@ -338,7 +348,7 @@ namespace MouseAimFlight
 
             freeLook |= (bool)freeLookKSPCameraField.GetValue(null);
 
-            if(freeLook != prevFreeLook && mouseAimActive)
+            if ((freeLook != prevFreeLook || forceCursorResetNextFrame) && mouseAimActive)
             {
                 Screen.lockCursor = true;
                 Screen.showCursor = false;
