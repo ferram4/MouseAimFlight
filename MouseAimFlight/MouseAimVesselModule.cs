@@ -273,7 +273,8 @@ namespace MouseAimFlight
 
         void LateUpdate()
         {
-            CheckResetCursor();
+            if (vessel != FlightGlobals.ActiveVessel)
+                CheckResetCursor();
         }
 
         void MouseAimPilot(FlightCtrlState s)
