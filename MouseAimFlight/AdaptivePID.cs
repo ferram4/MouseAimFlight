@@ -36,7 +36,7 @@ namespace MouseAimFlight
             yawPID = new PID(yP, yI, yD);
         }
 
-        public float UpWeighting()
+        public float UpWeighting(float altitude, float dynPress, float velocity)
         {
             return upWeighting;
         }

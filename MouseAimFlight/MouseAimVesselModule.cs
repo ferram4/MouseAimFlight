@@ -21,7 +21,7 @@ namespace MouseAimFlight
         float invSpeedFactorDebug;
         //------------------
 
-        float upWeighting;
+        float upWeighting = 0; //Upweighting not working, updating it on the GUI doesn't work either.
 
         string pitchPstr, pitchIstr, pitchDstr;
         string rollPstr, rollIstr, rollDstr;
@@ -92,7 +92,7 @@ namespace MouseAimFlight
             yawIstr = yawI.ToString();
             yawPstr = yawP.ToString();
 
-            upWeightingStr = pilot.UpWeighting().ToString();
+            upWeightingStr = upWeighting.ToString();
 
             pilot = new AdaptivePID();
 
@@ -389,7 +389,7 @@ namespace MouseAimFlight
             Vector3 currentRoll = -vesselTransform.forward;
             Vector3 rollTarget;
 
-            upWeighting = pilot.UpWeighting();
+            upWeighting = pilot.UpWeighting(altitude, dynPressure, velocity);
 
             rollTarget = (targetPosition + Mathf.Clamp(upWeighting * (100f - (yawError * 1.6f) - (pitchError * 2.8f)), 0, float.PositiveInfinity) * upDirection) - vessel.CoM;
 
