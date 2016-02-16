@@ -10,12 +10,18 @@ namespace MouseAimFlight
         Vessel vessel;
         Transform vesselTransform;
 
+        //GET RID OF THIS AS SOON AS THE GUI IS REMOVED
+        float pitchP = 0.2f, pitchI = 0.1f, pitchD = 0.08f;
+        float rollP = 0.01f, rollI = 0.001f, rollD = 0.005f;
+        float yawP = 0.035f, yawI = 0.1f, yawD = 0.04f;
+        //------------------
+
         float upWeighting = 3f;
 
-        //string pitchPstr, pitchIstr, pitchDstr;
-        //string yawPstr, yawIstr, yawDstr;
-        //string rollPstr, rollIstr, rollDstr;
-        //string upWeightingStr;
+        string pitchPstr, pitchIstr, pitchDstr;
+        string rollPstr, rollIstr, rollDstr;
+        string yawPstr, yawIstr, yawDstr;
+        string upWeightingStr;
 
         AdaptivePID pilot;
 
@@ -69,19 +75,19 @@ namespace MouseAimFlight
                 vesselForwardReticle.filterMode = FilterMode.Trilinear;
             }
 
-            //pitchDstr = pitchD.ToString();
-            //pitchIstr = pitchI.ToString();
-            //pitchPstr = pitchP.ToString();
+            pitchDstr = pitchD.ToString();
+            pitchIstr = pitchI.ToString();
+            pitchPstr = pitchP.ToString();
 
-            //yawDstr = yawD.ToString();
-            //yawIstr = yawI.ToString();
-            //yawPstr = yawP.ToString();
+            rollDstr = rollD.ToString();
+            rollIstr = rollI.ToString();
+            rollPstr = rollP.ToString();
 
-            //rollDstr = rollD.ToString();
-            //rollIstr = rollI.ToString();
-            //rollPstr = rollP.ToString();
+            yawDstr = yawD.ToString();
+            yawIstr = yawI.ToString();
+            yawPstr = yawP.ToString();
 
-            //upWeightingStr = upWeighting.ToString();
+            upWeightingStr = upWeighting.ToString();
 
             pilot = new AdaptivePID();
 
@@ -113,107 +119,105 @@ namespace MouseAimFlight
                     GUI.DrawTexture(directionRect, vesselForwardReticle);
                 }
 
-                //GUI.contentColor = Color.black;
-                //GUI.Label(new Rect(200, 200, 1200, 800), debugLabel);
+                GUI.contentColor = Color.black;
+                GUI.Label(new Rect(200, 200, 1200, 800), debugLabel);
 
             }
-            //else if (vessel == FlightGlobals.ActiveVessel)
-            //    debugRect = GUILayout.Window(this.GetHashCode(), debugRect, DebugPIDGUI, "");
+            else if (vessel == FlightGlobals.ActiveVessel)
+                debugRect = GUILayout.Window(this.GetHashCode(), debugRect, DebugPIDGUI, "");
         }
 
-        //Disabled GUI
-        //void DebugPIDGUI(int windowID)
-        //{
-        //    GUILayout.Label("Pitch:");
+        void DebugPIDGUI(int windowID)
+        {
+            GUILayout.Label("Pitch:");
 
-        //    GUILayout.BeginHorizontal();
-        //    TextEntry(ref pitchPstr, "P:");
-        //    GUILayout.Label(pitchPID.kp.ToString());
-        //    GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            TextEntry(ref pitchPstr, "P:");
+            GUILayout.Label(pilot.pitchPID.kp.ToString());
+            GUILayout.EndHorizontal();
 
-        //    GUILayout.BeginHorizontal();
-        //    TextEntry(ref pitchIstr, "I:");
-        //    GUILayout.Label(pitchPID.ki.ToString());
-        //    GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            TextEntry(ref pitchIstr, "I:");
+            GUILayout.Label(pilot.pitchPID.ki.ToString());
+            GUILayout.EndHorizontal();
 
-        //    GUILayout.BeginHorizontal();
-        //    TextEntry(ref pitchDstr, "D:");
-        //    GUILayout.Label(pitchPID.kd.ToString());
-        //    GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            TextEntry(ref pitchDstr, "D:");
+            GUILayout.Label(pilot.pitchPID.kd.ToString());
+            GUILayout.EndHorizontal();
 
-        //    GUILayout.Label("Yaw:");
+            GUILayout.Label("Roll:");
 
-        //    GUILayout.BeginHorizontal();
-        //    TextEntry(ref yawPstr, "P:");
-        //    GUILayout.Label(yawPID.kp.ToString());
-        //    GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            TextEntry(ref rollPstr, "P:");
+            GUILayout.Label(pilot.rollPID.kp.ToString());
+            GUILayout.EndHorizontal();
 
-        //    GUILayout.BeginHorizontal();
-        //    TextEntry(ref yawIstr, "I:");
-        //    GUILayout.Label(yawPID.ki.ToString());
-        //    GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            TextEntry(ref rollIstr, "I:");
+            GUILayout.Label(pilot.rollPID.ki.ToString());
+            GUILayout.EndHorizontal();
 
-        //    GUILayout.BeginHorizontal();
-        //    TextEntry(ref yawDstr, "D:");
-        //    GUILayout.Label(yawPID.kd.ToString());
-        //    GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            TextEntry(ref rollDstr, "D:");
+            GUILayout.Label(pilot.rollPID.kd.ToString());
+            GUILayout.EndHorizontal();
 
-        //    GUILayout.Label("Roll:");
+            GUILayout.Label("Yaw:");
 
-        //    GUILayout.BeginHorizontal();
-        //    TextEntry(ref rollPstr, "P:");
-        //    GUILayout.Label(rollPID.kp.ToString());
-        //    GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            TextEntry(ref yawPstr, "P:");
+            GUILayout.Label(pilot.yawPID.kp.ToString());
+            GUILayout.EndHorizontal();
 
-        //    GUILayout.BeginHorizontal();
-        //    TextEntry(ref rollIstr, "I:");
-        //    GUILayout.Label(rollPID.ki.ToString());
-        //    GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            TextEntry(ref yawIstr, "I:");
+            GUILayout.Label(pilot.yawPID.ki.ToString());
+            GUILayout.EndHorizontal();
 
-        //    GUILayout.BeginHorizontal();
-        //    TextEntry(ref rollDstr, "D:");
-        //    GUILayout.Label(rollPID.kd.ToString());
-        //    GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            TextEntry(ref yawDstr, "D:");
+            GUILayout.Label(pilot.yawPID.kd.ToString());
+            GUILayout.EndHorizontal();
+            
+            TextEntry(ref upWeightingStr, "Roll-up Weight");
 
-        //    TextEntry(ref upWeightingStr, "Roll-up Weight");
+            if (GUILayout.Button("Update K and reset integration errors"))
+            {
+                pitchD = float.Parse(pitchDstr);
+                pitchI = float.Parse(pitchIstr);
+                pitchP = float.Parse(pitchPstr);
 
-        //    if (GUILayout.Button("Update K and reset integration errors"))
-        //    {
-        //        pitchD = float.Parse(pitchDstr);
-        //        pitchI = float.Parse(pitchIstr);
-        //        pitchP = float.Parse(pitchPstr);
+                rollD = float.Parse(rollDstr);
+                rollI = float.Parse(rollIstr);
+                rollP = float.Parse(rollPstr);
 
-        //        yawD = float.Parse(yawDstr);
-        //        yawI = float.Parse(yawIstr);
-        //        yawP = float.Parse(yawPstr);
+                yawD = float.Parse(yawDstr);
+                yawI = float.Parse(yawIstr);
+                yawP = float.Parse(yawPstr);
 
-        //        rollD = float.Parse(rollDstr);
-        //        rollI = float.Parse(rollIstr);
-        //        rollP = float.Parse(rollPstr);
+                upWeighting = float.Parse(upWeightingStr);
 
-        //        upWeighting = float.Parse(upWeightingStr);
+                pilot = new AdaptivePID(pitchP, pitchI, pitchD, rollP, rollI, rollD, yawP, yawI, yawD);
+            }
 
-        //        pitchPID = new AdaptivePID(pitchP, pitchI, pitchD);
-        //        yawPID = new AdaptivePID(yawP, yawI, yawD);
-        //        rollPID = new AdaptivePID(rollP, rollI, rollD);
-        //    }
-        //    if (GUILayout.Button("Reset integration errors"))
-        //    {
-        //        pitchPID.ZeroIntegral();
-        //        yawPID.ZeroIntegral();
-        //        rollPID.ZeroIntegral();
-        //    }
+            if (GUILayout.Button("Reset integration errors"))
+            {
+                pilot.pitchPID.ZeroIntegral();
+                pilot.rollPID.ZeroIntegral();
+                pilot.yawPID.ZeroIntegral();
+            }
 
-        //    GUI.DragWindow();
-        //}
+            GUI.DragWindow();
+        }
 
-        //void TextEntry(ref string field, string label)
-        //{
-        //    GUILayout.BeginHorizontal();
-        //    GUILayout.Label(label);
-        //    field = GUILayout.TextField(field);
-        //    GUILayout.EndHorizontal();
-        //}
+        void TextEntry(ref string field, string label)
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label(label);
+            field = GUILayout.TextField(field);
+            GUILayout.EndHorizontal();
+        }
 
         void Update()
         {
@@ -282,11 +286,11 @@ namespace MouseAimFlight
             upDirection = VectorUtils.GetUpDirection(vesselTransform.position);
 
             FlyToPosition(s, targetPosition + vessel.CoM);
-            //pitchPID.DebugString(ref debugLabel, "pitch");
-            //debugLabel += "\n\n";
-            //yawPID.DebugString(ref debugLabel, "yaw");
-            //debugLabel += "\n\n";
-            //rollPID.DebugString(ref debugLabel, "roll");
+            pilot.pitchPID.DebugString(ref debugLabel, "pitch");
+            debugLabel += "\n\n";
+            pilot.rollPID.DebugString(ref debugLabel, "roll");
+            debugLabel += "\n\n";
+            pilot.yawPID.DebugString(ref debugLabel, "yaw");
         }
 
         void UpdateMouseCursorForCameraRotation()

@@ -8,14 +8,14 @@ namespace MouseAimFlight
 {
     class AdaptivePID
     {
-        PID pitchPID;
-        PID rollPID;
-        PID yawPID;
+        public PID pitchPID;
+        public PID rollPID;
+        public PID yawPID;
 
         float pitchP = 0.2f, pitchI = 0.1f, pitchD = 0.08f;
-        float yawP = 0.035f, yawI = 0.1f, yawD = 0.04f;
         float rollP = 0.01f, rollI = 0.001f, rollD = 0.005f;
-        float upWeighting = 3f;
+        float yawP = 0.035f, yawI = 0.1f, yawD = 0.04f;
+        float upWeighting = 3f; //TODO: update external upweighting
 
         float pIntLimt = 0.2f, rIntLimit = 0.2f, yIntLimit = 0.2f; //initialize integral limits at 0.2
 
@@ -28,6 +28,14 @@ namespace MouseAimFlight
             yawPID = new PID(yawP, yawI, yawD);
         }
 
+        //The constructor below is an abomination and will be nuked as soon as the GUI as it is gets removed.
+        public AdaptivePID(float pP, float pI, float pD, float rP, float rI, float rD, float yP, float yI, float yD)
+        {
+            pitchPID = new PID(pP, pI, pD);
+            rollPID = new PID(rP, rI, rD);
+            yawPID = new PID(yP, yI, yD);
+        }
+
         public Steer Simulate(float pitchError, float rollError, float yawError, UnityEngine.Vector3 angVel, float altitude, float timestep)
         {
             float steerPitch = pitchPID.Simulate(pitchError, angVel.x, pIntLimt, timestep);
@@ -38,17 +46,6 @@ namespace MouseAimFlight
 
             return steer;
         }
-
-        //public void DebugString(ref string debugString, string name)
-        //{
-        //    debugString += name + " errors:\n";
-        //    debugString += "p: " + errorP.ToString("N7") + "\ti: " + errorI.ToString("N7") + "\td: " + errorD.ToString("N8") + "\n";
-        //    debugString += name + " gains:\n";
-        //    debugString += "p: " + kp.ToString("N7") + "\ti: " + ki.ToString("N7") + "\td: " + kd.ToString("N7") + "\n";
-        //    debugString += name + " error*gains:\n";
-        //    debugString += "p: " + outputP.ToString("N7") + "\ti: " + outputI.ToString("N7") + "\td: " + outputD.ToString("N8") + "\n";
-        //    debugString += "Output: " + output.ToString("N7");
-        //}
         
         void AdaptGains(float timeStep)
         {
