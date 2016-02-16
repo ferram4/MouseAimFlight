@@ -41,6 +41,7 @@
   <ItemGroup>
     <Compile Include="AdaptivePID.cs" />
     <Compile Include="MouseAimVesselModule.cs" />
+    <Compile Include="PID.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VectorUtils.cs" />
   </ItemGroup>
