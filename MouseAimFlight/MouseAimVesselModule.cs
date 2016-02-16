@@ -16,7 +16,12 @@ namespace MouseAimFlight
         float yawP = 0.035f, yawI = 0.1f, yawD = 0.04f;
         //------------------
 
-        float upWeighting = 3f;
+        //DEBUG
+        float speedFactorDebug;
+        float invSpeedFactorDebug;
+        //------------------
+
+        float upWeighting;
 
         string pitchPstr, pitchIstr, pitchDstr;
         string rollPstr, rollIstr, rollDstr;
@@ -87,7 +92,7 @@ namespace MouseAimFlight
             yawIstr = yawI.ToString();
             yawPstr = yawP.ToString();
 
-            upWeightingStr = upWeighting.ToString();
+            upWeightingStr = pilot.UpWeighting().ToString();
 
             pilot = new AdaptivePID();
 
@@ -291,6 +296,10 @@ namespace MouseAimFlight
             pilot.rollPID.DebugString(ref debugLabel, "roll");
             debugLabel += "\n\n";
             pilot.yawPID.DebugString(ref debugLabel, "yaw");
+            debugLabel += "\n\n";
+            debugLabel += "Speed Factor: " + speedFactorDebug.ToString("N7");
+            debugLabel += "\n\n";
+            debugLabel += "Inverse Speed Factor: " + invSpeedFactorDebug.ToString("N7");
         }
 
         void UpdateMouseCursorForCameraRotation()
@@ -362,19 +371,25 @@ namespace MouseAimFlight
             float rollError;
 
             float altitude;
-            
-            targetDirection = vesselTransform.InverseTransformDirection(targetPosition - velocityTransform.position).normalized;
+            float dynPressure;
+            float velocity;
 
+            //Setup
+            targetDirection = vesselTransform.InverseTransformDirection(targetPosition - velocityTransform.position).normalized;
             targetDirectionYaw = targetDirection;
+
+            altitude = GetRadarAltitude();
+            dynPressure = (float)vessel.dynamicPressurekPa;
+            velocity = (float)vessel.srfSpeed;
 
             pitchError = (float)Math.Asin(Vector3d.Dot(Vector3d.back, VectorUtils.Vector3dProjectOnPlane(targetDirection, Vector3d.right))) * Mathf.Rad2Deg;
             yawError = (float)Math.Asin(Vector3d.Dot(Vector3d.right, VectorUtils.Vector3dProjectOnPlane(targetDirectionYaw, Vector3d.forward))) * Mathf.Rad2Deg;
 
-            altitude = GetRadarAltitude();
-
             //roll
             Vector3 currentRoll = -vesselTransform.forward;
             Vector3 rollTarget;
+
+            upWeighting = pilot.UpWeighting();
 
             rollTarget = (targetPosition + Mathf.Clamp(upWeighting * (100f - (yawError * 1.6f) - (pitchError * 2.8f)), 0, float.PositiveInfinity) * upDirection) - vessel.CoM;
 
@@ -382,12 +397,16 @@ namespace MouseAimFlight
 
             rollError = VectorUtils.SignedAngle(currentRoll, rollTarget, vesselTransform.right);
 
-            Steer steer = pilot.Simulate(pitchError, rollError, yawError, localAngVel, altitude, TimeWarp.fixedDeltaTime);
+            Steer steer = pilot.Simulate(pitchError, rollError, yawError, localAngVel, altitude, TimeWarp.fixedDeltaTime, dynPressure, velocity);
 
             s.pitch = Mathf.Clamp(steer.pitch, -1, 1);
             s.roll = Mathf.Clamp(steer.roll, -1, 1);
             s.yaw = Mathf.Clamp(steer.yaw, -1, 1);
 
+            //Debug
+            speedFactorDebug = dynPressure / velocity;
+            invSpeedFactorDebug = 1 / (speedFactorDebug + Single.Epsilon);
+            //------------------
         }
 
         float GetRadarAltitude()

@@ -14,7 +14,6 @@ namespace MouseAimFlight
 
         float errorP, errorI, errorD; //FOR DEBUGGING PURPOSES
 
-        float adaptationCoefficient;
         float integral;
 
         public PID(float initKp, float initKi, float initKd)
@@ -28,7 +27,15 @@ namespace MouseAimFlight
 
             integral = 0;
         }
-        public float Simulate(float error, float derivError, float integralLimit, float timeStep)
+
+        public void UpdateGains(float kp, float ki, float kd)
+        {
+            this.kp = kp;
+            this.ki = ki;
+            this.kd = kd;
+        }
+
+        public float Simulate(float error, float derivError, float integralLimit, float timeStep, float speedFactor)
         {
             //Setup
             integral += error * timeStep;
@@ -38,7 +45,7 @@ namespace MouseAimFlight
             else
                 ZeroIntegral();
 
-            //Working with the outputs
+            //Computing the outputs
             outputP = error * kp;
             if (outputP >= 1)
                 ZeroIntegral();
@@ -50,10 +57,12 @@ namespace MouseAimFlight
             errorI = integral;
             errorD = derivError;
             output = outputP + outputI + outputD;
-            Clamp(ref output, 1);
             //-----------------------
 
-            return outputP + outputI + outputD;
+            output *= speedFactor;
+            Clamp(ref output, 1);
+
+            return output;
         }
 
         public void Clamp(ref float value, float limit)

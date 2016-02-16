@@ -36,18 +36,25 @@ namespace MouseAimFlight
             yawPID = new PID(yP, yI, yD);
         }
 
-        public Steer Simulate(float pitchError, float rollError, float yawError, UnityEngine.Vector3 angVel, float altitude, float timestep)
+        public float UpWeighting()
         {
-            float steerPitch = pitchPID.Simulate(pitchError, angVel.x, pIntLimt, timestep);
-            float steerRoll = rollPID.Simulate(rollError, angVel.y, rIntLimit, timestep);
-            float steerYaw = yawPID.Simulate(yawError, angVel.z, yIntLimit, timestep);
+            return upWeighting;
+        }
+
+        public Steer Simulate(float pitchError, float rollError, float yawError, UnityEngine.Vector3 angVel, float altitude, float timestep, float dynPress, float vel)
+        {
+            float speedFactor = vel / dynPress / 16; //More work needs to be done to sanitize speedFactor
+
+            float steerPitch = pitchPID.Simulate(pitchError, angVel.x, pIntLimt, timestep, speedFactor);
+            float steerRoll = rollPID.Simulate(rollError, angVel.y, rIntLimit, timestep, speedFactor);
+            float steerYaw = yawPID.Simulate(yawError, angVel.z, yIntLimit, timestep, speedFactor);
 
             Steer steer = new Steer (steerPitch, steerRoll, steerYaw);
 
             return steer;
         }
         
-        void AdaptGains(float timeStep)
+        void AdaptGains(float timeStep, float speedFactor)
         {
             //There will be some cool code in here in the future.
         }
