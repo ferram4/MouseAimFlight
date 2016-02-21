@@ -263,6 +263,7 @@ namespace MouseAimFlight
 
             if(PauseMenu.isOpen)
             {
+                mouseAimActive = false;
                 forceCursorResetNextFrame = true;
                 return;
             }
