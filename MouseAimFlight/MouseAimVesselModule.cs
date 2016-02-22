@@ -35,6 +35,7 @@ namespace MouseAimFlight
         static bool freeLook = false;
         static bool prevFreeLook = false;
         static bool forceCursorResetNextFrame = false;
+        static bool pitchYawOverrideMouseAim = false;
         static FieldInfo freeLookKSPCameraField = null;
         string debugLabel;
         
@@ -262,6 +263,7 @@ namespace MouseAimFlight
 
             if(PauseMenu.isOpen)
             {
+                mouseAimActive = false;
                 forceCursorResetNextFrame = true;
                 return;
             }
@@ -273,7 +275,7 @@ namespace MouseAimFlight
 
         void LateUpdate()
         {
-            if (vessel != FlightGlobals.ActiveVessel)
+            if (vessel == FlightGlobals.ActiveVessel)
                 CheckResetCursor();
         }
 
@@ -286,7 +288,12 @@ namespace MouseAimFlight
 
             debugLabel = "";
             if (s.pitch != s.pitchTrim || s.yaw != s.yawTrim)
+            {
+                pitchYawOverrideMouseAim = true;
                 return;
+            }
+            else
+                pitchYawOverrideMouseAim = false;
 
             upDirection = VectorUtils.GetUpDirection(vesselTransform.position);
 
@@ -300,25 +307,34 @@ namespace MouseAimFlight
             debugLabel += "Speed Factor: " + speedFactorDebug.ToString("N7");
             debugLabel += "\n\n";
             debugLabel += "Inverse Speed Factor: " + invSpeedFactorDebug.ToString("N7");
+            debugLabel += "\n\n";
+            debugLabel += "freelook: " + freeLook;
         }
 
         void UpdateMouseCursorForCameraRotation()
         {
-            Vector3 mouseDelta;
-
-            if (freeLook)
-                mouseDelta = Vector3.zero;
+            if (pitchYawOverrideMouseAim)
+            {
+                targetPosition = vesselTransform.up * 5000f;
+            }
             else
-                mouseDelta = new Vector3(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y")) * 100;
+            {
+                Vector3 mouseDelta;
 
-            Transform cameraTransform = FlightCamera.fetch.mainCamera.transform;
+                if (freeLook)
+                    mouseDelta = Vector3.zero;
+                else
+                    mouseDelta = new Vector3(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y")) * 100;
 
-            Vector3 localTarget = cameraTransform.InverseTransformDirection(targetPosition);
-            localTarget += mouseDelta;
-            localTarget.Normalize();
-            localTarget *= 5000f;
+                Transform cameraTransform = FlightCamera.fetch.mainCamera.transform;
 
-            targetPosition = cameraTransform.TransformDirection(localTarget);
+                Vector3 localTarget = cameraTransform.InverseTransformDirection(targetPosition);
+                localTarget += mouseDelta;
+                localTarget.Normalize();
+                localTarget *= 5000f;
+
+                targetPosition = cameraTransform.TransformDirection(localTarget);
+            }
         }
 
         void UpdateCursorScreenLocation()
@@ -338,12 +354,12 @@ namespace MouseAimFlight
                 return;
 
             prevFreeLook = freeLook;
-            if (!Mouse.Right.GetButton() && freeLook)
-            {
-                freeLook = false;
-            }
+
             if (Mouse.Right.GetButton())
                 freeLook = true;
+            else if (freeLook)
+                freeLook = false;
+
 
             freeLook |= (bool)freeLookKSPCameraField.GetValue(null);
 
@@ -351,6 +367,8 @@ namespace MouseAimFlight
             {
                 Screen.lockCursor = true;
                 Screen.showCursor = false;
+
+                forceCursorResetNextFrame = false;
             }
         }
 
