@@ -38,6 +38,11 @@ namespace MouseAimFlight
 
         public float UpWeighting(float altitude, float dynPress, float velocity)
         {
+            if (altitude < 50) //prevents rolling into the ground
+            {
+                return (10 - 0.18f * altitude) * upWeighting;
+            }
+
             return upWeighting;
         }
 
@@ -45,8 +50,15 @@ namespace MouseAimFlight
         {
             float speedFactor = vel / dynPress / 16; //More work needs to be done to sanitize speedFactor
 
-            float steerPitch = pitchPID.Simulate(pitchError, angVel.x, pIntLimt, timestep, speedFactor);
-            float steerRoll = rollPID.Simulate(rollError, angVel.y, rIntLimit, timestep, speedFactor);
+            if (speedFactor > 2)
+            {
+                speedFactor = 2;
+            }
+
+            float trimFactor = (float)Math.Sqrt(speedFactor);
+
+            float steerPitch = pitchPID.Simulate(pitchError, angVel.x, pIntLimt * trimFactor, timestep, speedFactor);
+            float steerRoll = rollPID.Simulate(rollError, angVel.y, rIntLimit, timestep, 1);
             float steerYaw = yawPID.Simulate(yawError, angVel.z, yIntLimit, timestep, speedFactor);
 
             Steer steer = new Steer (steerPitch, steerRoll, steerYaw);
