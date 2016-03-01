@@ -13,11 +13,11 @@ namespace MouseAimFlight
         public PID yawPID;
 
         float pitchP = 0.2f, pitchI = 0.1f, pitchD = 0.08f;
-        float rollP = 0.01f, rollI = 0.001f, rollD = 0.005f;
-        float yawP = 0.035f, yawI = 0.1f, yawD = 0.04f;
+        float rollP = 0.017f, rollI = 0.001f, rollD = 0.01f;
+        float yawP = 0.05f, yawI = 0.1f, yawD = 0.04f;
         float upWeighting = 3f; //TODO: update external upweighting
 
-        float pIntLimt = 0.2f, rIntLimit = 0.2f, yIntLimit = 0.2f; //initialize integral limits at 0.2
+        float pIntLimt = 0.6f, rIntLimit = 0.2f, yIntLimit = 0.6f; //initialize integral limits at 0.2
 
         float adaptationCoefficient;
 
@@ -48,7 +48,6 @@ namespace MouseAimFlight
             float steerPitch = pitchPID.Simulate(pitchError, angVel.x, pIntLimt, timestep, speedFactor);
             float steerRoll = rollPID.Simulate(rollError, angVel.y, rIntLimit, timestep, speedFactor);
             float steerYaw = yawPID.Simulate(yawError, angVel.z, yIntLimit, timestep, speedFactor);
-
             Steer steer = new Steer (steerPitch, steerRoll, steerYaw);
 
             return steer;

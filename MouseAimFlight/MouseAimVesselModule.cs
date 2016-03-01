@@ -227,6 +227,13 @@ namespace MouseAimFlight
 
         void Update()
         {
+            if (PauseMenu.isOpen)
+            {
+                mouseAimActive = false;
+                //forceCursorResetNextFrame = true;
+                return;
+            } 
+            
             if (vessel == FlightGlobals.ActiveVessel && vessel != prevActiveVessel)
             {
                 prevActiveVessel = vessel;
@@ -260,13 +267,6 @@ namespace MouseAimFlight
 
             if (vessel != FlightGlobals.ActiveVessel || !mouseAimActive)
                 return;
-
-            if(PauseMenu.isOpen)
-            {
-                mouseAimActive = false;
-                forceCursorResetNextFrame = true;
-                return;
-            }
 
             UpdateMouseCursorForCameraRotation();
             UpdateVesselScreenLocation();
@@ -409,7 +409,7 @@ namespace MouseAimFlight
 
             upWeighting = pilot.UpWeighting(altitude, dynPressure, velocity);
 
-            rollTarget = (targetPosition + Mathf.Clamp(upWeighting * (100f - (yawError * 1.6f) - (pitchError * 2.8f)), 0, float.PositiveInfinity) * upDirection) - vessel.CoM;
+            rollTarget = (targetPosition + Mathf.Clamp(upWeighting * (100f - Math.Abs(yawError * 1.6f) - (pitchError * 2.8f)), 0, float.PositiveInfinity) * upDirection) - vessel.CoM;
 
             rollTarget = Vector3.ProjectOnPlane(rollTarget, vesselTransform.up);
 
@@ -418,7 +418,8 @@ namespace MouseAimFlight
             Steer steer = pilot.Simulate(pitchError, rollError, yawError, localAngVel, altitude, TimeWarp.fixedDeltaTime, dynPressure, velocity);
 
             s.pitch = Mathf.Clamp(steer.pitch, -1, 1);
-            s.roll = Mathf.Clamp(steer.roll, -1, 1);
+            if (s.roll == s.rollTrim)
+                s.roll = Mathf.Clamp(steer.roll, -1, 1);
             s.yaw = Mathf.Clamp(steer.yaw, -1, 1);
 
             //Debug
