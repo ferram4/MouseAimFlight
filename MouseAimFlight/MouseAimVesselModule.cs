@@ -62,24 +62,11 @@ namespace MouseAimFlight
             }
         }
 
-        static Texture2D vesselForwardReticle;
-        static Texture2D mouseCursorReticle;
 
         void Start()
         {
             vessel = GetComponent<Vessel>();
             vessel.OnAutopilotUpdate += MouseAimPilot;
-
-            if (mouseCursorReticle == null)
-            {
-                mouseCursorReticle = GameDatabase.Instance.GetTexture("MouseAimFlight/Assets/circle", false);
-                mouseCursorReticle.filterMode = FilterMode.Trilinear;
-            }
-            if(vesselForwardReticle == null)
-            {
-                vesselForwardReticle = GameDatabase.Instance.GetTexture("MouseAimFlight/Assets/cross", false);
-                vesselForwardReticle.filterMode = FilterMode.Trilinear;
-            }
 
             pitchDstr = pitchD.ToString();
             pitchIstr = pitchI.ToString();
@@ -108,29 +95,15 @@ namespace MouseAimFlight
         //Commented out old GUI
         void OnGUI()
         {
-            if (vessel == FlightGlobals.ActiveVessel && mouseAimActive && !MapView.MapIsEnabled)
+            /*if (vessel == FlightGlobals.ActiveVessel && mouseAimActive && !MapView.MapIsEnabled)
             {
-                float size = Screen.width / 32;
-                if (mouseAimScreenLocation.z > 0)
-                {
-                    Rect aimRect = new Rect(mouseAimScreenLocation.x - (0.5f * size), (Screen.height - mouseAimScreenLocation.y) - (0.5f * size), size, size);
-
-                    GUI.DrawTexture(aimRect, mouseCursorReticle);
-                }
-
-                if (vesselForwardScreenLocation.z > 0)
-                {
-                    Rect directionRect = new Rect(vesselForwardScreenLocation.x - (0.5f * size), (Screen.height - vesselForwardScreenLocation.y) - (0.5f * size), size, size);
-
-                    GUI.DrawTexture(directionRect, vesselForwardReticle);
-                }
-
+                MouseAimFlightSceneGUI.DisplayMouseAimReticles(mouseAimScreenLocation, vesselForwardScreenLocation);
                 GUI.contentColor = Color.black;
                 GUI.Label(new Rect(200, 200, 1200, 800), debugLabel);
 
             }
             else if (vessel == FlightGlobals.ActiveVessel)
-                debugRect = GUILayout.Window(this.GetHashCode(), debugRect, DebugPIDGUI, "");
+                debugRect = GUILayout.Window(this.GetHashCode(), debugRect, DebugPIDGUI, "");*/
         }
 
         void DebugPIDGUI(int windowID)
@@ -248,7 +221,7 @@ namespace MouseAimFlight
                     Screen.showCursor = true;
                 }
             }
-            else if (Input.GetKeyDown(KeyCode.P))
+            else if (Input.GetKeyDown(MouseAimSettings.ToggleKeyCode))
             {
                 mouseAimActive = !mouseAimActive;
                 if (mouseAimActive)

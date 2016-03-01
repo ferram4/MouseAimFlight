@@ -40,6 +40,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AdaptivePID.cs" />
+    <Compile Include="MouseAimFlightSceneGUI.cs" />
+    <Compile Include="MouseAimSettings.cs" />
     <Compile Include="MouseAimVesselModule.cs" />
     <Compile Include="PID.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
