@@ -36,17 +36,31 @@ namespace MouseAimFlight
             yawPID = new PID(yP, yI, yD);
         }
 
-        public float UpWeighting(float altitude, float dynPress, float velocity)
+        public float UpWeighting(float terrainAltitude, float dynPress, float velocity)
         {
-            return upWeighting;
+            float finalUpWeighting = upWeighting;
+
+            if (terrainAltitude < 50)
+                finalUpWeighting += 20f * (1 - terrainAltitude / 50f);
+
+            return finalUpWeighting;
         }
 
-        public Steer Simulate(float pitchError, float rollError, float yawError, UnityEngine.Vector3 angVel, float altitude, float timestep, float dynPress, float vel)
+        public Steer Simulate(float pitchError, float rollError, float yawError, UnityEngine.Vector3 angVel, float terrainAltitude, float timestep, float dynPress, float vel)
         {
             float speedFactor = vel / dynPress / 16; //More work needs to be done to sanitize speedFactor
 
+            if (speedFactor > 200)
+                speedFactor = 200;
+
             float steerPitch = pitchPID.Simulate(pitchError, angVel.x, pIntLimt, timestep, speedFactor);
+
+
             float steerRoll = rollPID.Simulate(rollError, angVel.y, rIntLimit, timestep, speedFactor);
+
+            if (pitchPID.IntegralZeroed)        //yaw integrals should be zeroed at the same time that pitch PIDs are zeroed, because that happens in large turns
+                yawPID.ZeroIntegral();
+
             float steerYaw = yawPID.Simulate(yawError, angVel.z, yIntLimit, timestep, speedFactor);
             Steer steer = new Steer (steerPitch, steerRoll, steerYaw);
 
