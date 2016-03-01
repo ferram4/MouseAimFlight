@@ -388,7 +388,7 @@ namespace MouseAimFlight
             float pitchError;
             float rollError;
 
-            float altitude;
+            float terrainAltitude;
             float dynPressure;
             float velocity;
 
@@ -396,7 +396,7 @@ namespace MouseAimFlight
             targetDirection = vesselTransform.InverseTransformDirection(targetPosition - velocityTransform.position).normalized;
             targetDirectionYaw = targetDirection;
 
-            altitude = GetRadarAltitude();
+            terrainAltitude = GetRadarAltitude();
             dynPressure = (float)vessel.dynamicPressurekPa;
             velocity = (float)vessel.srfSpeed;
 
@@ -407,7 +407,7 @@ namespace MouseAimFlight
             Vector3 currentRoll = -vesselTransform.forward;
             Vector3 rollTarget;
 
-            upWeighting = pilot.UpWeighting(altitude, dynPressure, velocity);
+            upWeighting = pilot.UpWeighting(terrainAltitude, dynPressure, velocity);
 
             rollTarget = (targetPosition + Mathf.Clamp(upWeighting * (100f - Math.Abs(yawError * 1.6f) - (pitchError * 2.8f)), 0, float.PositiveInfinity) * upDirection) - vessel.CoM;
 
@@ -415,7 +415,7 @@ namespace MouseAimFlight
 
             rollError = VectorUtils.SignedAngle(currentRoll, rollTarget, vesselTransform.right);
 
-            Steer steer = pilot.Simulate(pitchError, rollError, yawError, localAngVel, altitude, TimeWarp.fixedDeltaTime, dynPressure, velocity);
+            Steer steer = pilot.Simulate(pitchError, rollError, yawError, localAngVel, terrainAltitude, TimeWarp.fixedDeltaTime, dynPressure, velocity);
 
             s.pitch = Mathf.Clamp(steer.pitch, -1, 1);
             if (s.roll == s.rollTrim)
