@@ -50,8 +50,8 @@ namespace MouseAimFlight
         {
             float speedFactor = vel / dynPress / 16; //More work needs to be done to sanitize speedFactor
 
-            if (speedFactor > 200)
-                speedFactor = 200;
+            if (speedFactor > 2)
+                speedFactor = 2;
 
             float steerPitch = pitchPID.Simulate(pitchError, angVel.x, pIntLimt, timestep, speedFactor);
 

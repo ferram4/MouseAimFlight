@@ -17,6 +17,7 @@ namespace MouseAimFlight
         //------------------
 
         //DEBUG
+        float dynPressDebug;
         float speedFactorDebug;
         float invSpeedFactorDebug;
         //------------------
@@ -278,6 +279,8 @@ namespace MouseAimFlight
             debugLabel += "\n\n";
             pilot.yawPID.DebugString(ref debugLabel, "yaw");
             debugLabel += "\n\n";
+            debugLabel += "Dynpress: " + dynPressDebug.ToString("N7");
+            debugLabel += "\n\n";
             debugLabel += "Speed Factor: " + speedFactorDebug.ToString("N7");
             debugLabel += "\n\n";
             debugLabel += "Inverse Speed Factor: " + invSpeedFactorDebug.ToString("N7");
@@ -397,10 +400,9 @@ namespace MouseAimFlight
             s.yaw = Mathf.Clamp(steer.yaw, -1, 1);
 
             //Debug
-            speedFactorDebug = dynPressure / velocity;
+            dynPressDebug = dynPressure;
+            speedFactorDebug = dynPressure * 16 / velocity;
             invSpeedFactorDebug = 1 / (speedFactorDebug + Single.Epsilon);
-            if (invSpeedFactorDebug > 200)
-                invSpeedFactorDebug = 200;
             //------------------
         }
 
