@@ -95,10 +95,11 @@ namespace MouseAimFlight
         //Commented out old GUI
         void OnGUI()
         {
-            /*if (vessel == FlightGlobals.ActiveVessel && mouseAimActive && !MapView.MapIsEnabled)
+            if (vessel == FlightGlobals.ActiveVessel && mouseAimActive && !MapView.MapIsEnabled)
             {
                 MouseAimFlightSceneGUI.DisplayMouseAimReticles(mouseAimScreenLocation, vesselForwardScreenLocation);
-                GUI.contentColor = Color.black;
+            }
+            /*    GUI.contentColor = Color.black;
                 GUI.Label(new Rect(200, 200, 1200, 800), debugLabel);
 
             }

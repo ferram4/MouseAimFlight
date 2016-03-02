@@ -68,8 +68,12 @@ namespace MouseAimFlight
 
         void OnGUI()
         {
-            if(showGUI)
+            if (showGUI)
+            {
+                GUI.skin = HighLogic.Skin;
+
                 guiRect = GUILayout.Window(this.GetHashCode(), guiRect, GUIWindow, "MouseAim Settings");
+            }
         }
 
         void GUIWindow(int windowID)
@@ -114,7 +118,7 @@ namespace MouseAimFlight
                 vesselForwardReticle = vesselForwardBlank;
         }
 
-        #region AppLauncher
+       #region AppLauncher
         public void OnGUIAppLauncherReady()
         {
             if (ApplicationLauncher.Ready && mAFButton == null)
