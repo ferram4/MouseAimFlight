@@ -402,8 +402,6 @@ namespace MouseAimFlight
             dynPressDebug = dynPressure;
             speedFactorDebug = dynPressure * 16 / velocity;
             invSpeedFactorDebug = 1 / (speedFactorDebug + Single.Epsilon);
-            if (invSpeedFactorDebug > 200)
-                invSpeedFactorDebug = 200;
             //------------------
         }
 
