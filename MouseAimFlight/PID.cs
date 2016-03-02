@@ -15,6 +15,10 @@ namespace MouseAimFlight
         float errorP, errorI, errorD; //FOR DEBUGGING PURPOSES
 
         float integral;
+        public bool IntegralZeroed
+        {
+            get { return integral == 0; }
+        }
 
         public PID(float initKp, float initKi, float initKd)
         {

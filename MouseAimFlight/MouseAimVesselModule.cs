@@ -63,24 +63,11 @@ namespace MouseAimFlight
             }
         }
 
-        static Texture2D vesselForwardReticle;
-        static Texture2D mouseCursorReticle;
 
         void Start()
         {
             vessel = GetComponent<Vessel>();
             vessel.OnAutopilotUpdate += MouseAimPilot;
-
-            if (mouseCursorReticle == null)
-            {
-                mouseCursorReticle = GameDatabase.Instance.GetTexture("MouseAimFlight/Assets/circle", false);
-                mouseCursorReticle.filterMode = FilterMode.Trilinear;
-            }
-            if(vesselForwardReticle == null)
-            {
-                vesselForwardReticle = GameDatabase.Instance.GetTexture("MouseAimFlight/Assets/cross", false);
-                vesselForwardReticle.filterMode = FilterMode.Trilinear;
-            }
 
             pitchDstr = pitchD.ToString();
             pitchIstr = pitchI.ToString();
@@ -109,29 +96,15 @@ namespace MouseAimFlight
         //Commented out old GUI
         void OnGUI()
         {
-            if (vessel == FlightGlobals.ActiveVessel && mouseAimActive && !MapView.MapIsEnabled)
+            /*if (vessel == FlightGlobals.ActiveVessel && mouseAimActive && !MapView.MapIsEnabled)
             {
-                float size = Screen.width / 32;
-                if (mouseAimScreenLocation.z > 0)
-                {
-                    Rect aimRect = new Rect(mouseAimScreenLocation.x - (0.5f * size), (Screen.height - mouseAimScreenLocation.y) - (0.5f * size), size, size);
-
-                    GUI.DrawTexture(aimRect, mouseCursorReticle);
-                }
-
-                if (vesselForwardScreenLocation.z > 0)
-                {
-                    Rect directionRect = new Rect(vesselForwardScreenLocation.x - (0.5f * size), (Screen.height - vesselForwardScreenLocation.y) - (0.5f * size), size, size);
-
-                    GUI.DrawTexture(directionRect, vesselForwardReticle);
-                }
-
+                MouseAimFlightSceneGUI.DisplayMouseAimReticles(mouseAimScreenLocation, vesselForwardScreenLocation);
                 GUI.contentColor = Color.black;
                 GUI.Label(new Rect(200, 200, 1200, 800), debugLabel);
 
             }
             else if (vessel == FlightGlobals.ActiveVessel)
-                debugRect = GUILayout.Window(this.GetHashCode(), debugRect, DebugPIDGUI, "");
+                debugRect = GUILayout.Window(this.GetHashCode(), debugRect, DebugPIDGUI, "");*/
         }
 
         void DebugPIDGUI(int windowID)
@@ -228,6 +201,13 @@ namespace MouseAimFlight
 
         void Update()
         {
+            if (PauseMenu.isOpen)
+            {
+                mouseAimActive = false;
+                //forceCursorResetNextFrame = true;
+                return;
+            } 
+            
             if (vessel == FlightGlobals.ActiveVessel && vessel != prevActiveVessel)
             {
                 prevActiveVessel = vessel;
@@ -242,7 +222,7 @@ namespace MouseAimFlight
                     Screen.showCursor = true;
                 }
             }
-            else if (Input.GetKeyDown(KeyCode.P))
+            else if (Input.GetKeyDown(MouseAimSettings.ToggleKeyCode))
             {
                 mouseAimActive = !mouseAimActive;
                 if (mouseAimActive)
@@ -261,13 +241,6 @@ namespace MouseAimFlight
 
             if (vessel != FlightGlobals.ActiveVessel || !mouseAimActive)
                 return;
-
-            if(PauseMenu.isOpen)
-            {
-                mouseAimActive = false;
-                forceCursorResetNextFrame = true;
-                return;
-            }
 
             UpdateMouseCursorForCameraRotation();
             UpdateVesselScreenLocation();
@@ -391,7 +364,7 @@ namespace MouseAimFlight
             float pitchError;
             float rollError;
 
-            float altitude;
+            float terrainAltitude;
             float dynPressure;
             float velocity;
 
@@ -399,7 +372,7 @@ namespace MouseAimFlight
             targetDirection = vesselTransform.InverseTransformDirection(targetPosition - velocityTransform.position).normalized;
             targetDirectionYaw = targetDirection;
 
-            altitude = GetRadarAltitude();
+            terrainAltitude = GetRadarAltitude();
             dynPressure = (float)vessel.dynamicPressurekPa;
             velocity = (float)vessel.srfSpeed;
 
@@ -410,24 +383,27 @@ namespace MouseAimFlight
             Vector3 currentRoll = -vesselTransform.forward;
             Vector3 rollTarget;
 
-            upWeighting = pilot.UpWeighting(altitude, dynPressure, velocity);
+            upWeighting = pilot.UpWeighting(terrainAltitude, dynPressure, velocity);
 
-            rollTarget = (targetPosition + Mathf.Clamp(upWeighting * (100f - (yawError * 1.6f) - (pitchError * 2.8f)), 0, float.PositiveInfinity) * upDirection) - vessel.CoM;
+            rollTarget = (targetPosition + Mathf.Clamp(upWeighting * (100f - Math.Abs(yawError * 1.6f) - (pitchError * 2.8f)), 0, float.PositiveInfinity) * upDirection) - vessel.CoM;
 
             rollTarget = Vector3.ProjectOnPlane(rollTarget, vesselTransform.up);
 
             rollError = VectorUtils.SignedAngle(currentRoll, rollTarget, vesselTransform.right);
 
-            Steer steer = pilot.Simulate(pitchError, rollError, yawError, localAngVel, altitude, TimeWarp.fixedDeltaTime, dynPressure, velocity);
+            Steer steer = pilot.Simulate(pitchError, rollError, yawError, localAngVel, terrainAltitude, TimeWarp.fixedDeltaTime, dynPressure, velocity);
 
             s.pitch = Mathf.Clamp(steer.pitch, -1, 1);
-            s.roll = Mathf.Clamp(steer.roll, -1, 1);
+            if (s.roll == s.rollTrim)
+                s.roll = Mathf.Clamp(steer.roll, -1, 1);
             s.yaw = Mathf.Clamp(steer.yaw, -1, 1);
 
             //Debug
             dynPressDebug = dynPressure;
             speedFactorDebug = dynPressure * 16 / velocity;
             invSpeedFactorDebug = 1 / (speedFactorDebug + Single.Epsilon);
+            if (invSpeedFactorDebug > 200)
+                invSpeedFactorDebug = 200;
             //------------------
         }
 

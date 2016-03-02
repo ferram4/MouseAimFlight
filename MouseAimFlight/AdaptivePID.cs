@@ -13,11 +13,11 @@ namespace MouseAimFlight
         public PID yawPID;
 
         float pitchP = 0.2f, pitchI = 0.1f, pitchD = 0.08f;
-        float rollP = 0.01f, rollI = 0.001f, rollD = 0.005f;
-        float yawP = 0.035f, yawI = 0.1f, yawD = 0.04f;
+        float rollP = 0.017f, rollI = 0.001f, rollD = 0.01f;
+        float yawP = 0.05f, yawI = 0.1f, yawD = 0.04f;
         float upWeighting = 3f; //TODO: update external upweighting
 
-        float pIntLimt = 0.2f, rIntLimit = 0.2f, yIntLimit = 0.2f; //initialize integral limits at 0.2
+        float pIntLimt = 0.6f, rIntLimit = 0.2f, yIntLimit = 0.6f; //initialize integral limits at 0.2
 
         float adaptationCoefficient;
 
@@ -36,31 +36,32 @@ namespace MouseAimFlight
             yawPID = new PID(yP, yI, yD);
         }
 
-        public float UpWeighting(float altitude, float dynPress, float velocity)
+        public float UpWeighting(float terrainAltitude, float dynPress, float velocity)
         {
-            if (altitude < 50) //prevents rolling into the ground
-            {
-                return (10 - 0.18f * altitude) * upWeighting;
-            }
+            float finalUpWeighting = upWeighting;
 
-            return upWeighting;
+            if (terrainAltitude < 50)
+                finalUpWeighting += 20f * (1 - terrainAltitude / 50f);
+
+            return finalUpWeighting;
         }
 
-        public Steer Simulate(float pitchError, float rollError, float yawError, UnityEngine.Vector3 angVel, float altitude, float timestep, float dynPress, float vel)
+        public Steer Simulate(float pitchError, float rollError, float yawError, UnityEngine.Vector3 angVel, float terrainAltitude, float timestep, float dynPress, float vel)
         {
             float speedFactor = vel / dynPress / 16; //More work needs to be done to sanitize speedFactor
 
-            if (speedFactor > 2)
-            {
-                speedFactor = 2;
-            }
+            if (speedFactor > 200)
+                speedFactor = 200;
 
-            float trimFactor = (float)Math.Sqrt(speedFactor);
+            float steerPitch = pitchPID.Simulate(pitchError, angVel.x, pIntLimt, timestep, speedFactor);
 
-            float steerPitch = pitchPID.Simulate(pitchError, angVel.x, pIntLimt * trimFactor, timestep, speedFactor);
-            float steerRoll = rollPID.Simulate(rollError, angVel.y, rIntLimit, timestep, 1);
+
+            float steerRoll = rollPID.Simulate(rollError, angVel.y, rIntLimit, timestep, speedFactor);
+
+            if (pitchPID.IntegralZeroed)        //yaw integrals should be zeroed at the same time that pitch PIDs are zeroed, because that happens in large turns
+                yawPID.ZeroIntegral();
+
             float steerYaw = yawPID.Simulate(yawError, angVel.z, yIntLimit, timestep, speedFactor);
-
             Steer steer = new Steer (steerPitch, steerRoll, steerYaw);
 
             return steer;
