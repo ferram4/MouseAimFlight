@@ -89,7 +89,7 @@ namespace MouseAimFlight
             GUILayout.BeginHorizontal(GUILayout.Width(170));
             if(GUILayout.Button("Change Cursor: ", GUILayout.Width(100)))
                 CycleCursor();
-            GUI.DrawTexture(new Rect(120, 50, 35, 35), vesselForwardReticle);
+            GUI.DrawTexture(new Rect(120, 65, 35, 35), vesselForwardReticle);
             GUILayout.EndHorizontal();
             GUILayout.EndVertical();
 
