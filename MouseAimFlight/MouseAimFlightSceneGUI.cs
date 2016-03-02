@@ -68,8 +68,12 @@ namespace MouseAimFlight
 
         void OnGUI()
         {
-            if(showGUI)
+            if (showGUI)
+            {
+                GUI.skin = HighLogic.Skin;
+
                 guiRect = GUILayout.Window(this.GetHashCode(), guiRect, GUIWindow, "MouseAim Settings");
+            }
         }
 
         void GUIWindow(int windowID)
@@ -85,7 +89,7 @@ namespace MouseAimFlight
             GUILayout.BeginHorizontal(GUILayout.Width(170));
             if(GUILayout.Button("Change Cursor: ", GUILayout.Width(100)))
                 CycleCursor();
-            GUI.DrawTexture(new Rect(120, 50, 35, 35), vesselForwardReticle);
+            GUI.DrawTexture(new Rect(120, 65, 35, 35), vesselForwardReticle);
             GUILayout.EndHorizontal();
             GUILayout.EndVertical();
 
@@ -114,7 +118,7 @@ namespace MouseAimFlight
                 vesselForwardReticle = vesselForwardBlank;
         }
 
-        #region AppLauncher
+       #region AppLauncher
         public void OnGUIAppLauncherReady()
         {
             if (ApplicationLauncher.Ready && mAFButton == null)
