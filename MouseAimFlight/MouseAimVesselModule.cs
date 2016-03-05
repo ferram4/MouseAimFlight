@@ -301,7 +301,12 @@ namespace MouseAimFlight
                 if (freeLook)
                     mouseDelta = Vector3.zero;
                 else
-                    mouseDelta = new Vector3(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y")) * 100;
+                    mouseDelta = new Vector3(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y")) * MouseAimSettings.MouseSensitivity;
+
+                if (MouseAimSettings.InvertXAxis)
+                    mouseDelta.x *= -1;
+                if (MouseAimSettings.InvertYAxis)
+                    mouseDelta.y *= -1;
 
                 Transform cameraTransform = FlightCamera.fetch.mainCamera.transform;
 

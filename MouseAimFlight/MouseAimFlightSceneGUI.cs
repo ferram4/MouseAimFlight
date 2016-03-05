@@ -91,6 +91,13 @@ namespace MouseAimFlight
                 CycleCursor();
             GUI.DrawTexture(new Rect(120, 65, 35, 35), vesselForwardReticle);
             GUILayout.EndHorizontal();
+
+            GUILayout.Space(5);
+
+            GUILayout.Label("Mouse Sensitivity: " + MouseAimSettings.MouseSensitivity);
+            MouseAimSettings.MouseSensitivity = GUILayout.HorizontalSlider(MouseAimSettings.MouseSensitivity, 25, 500);
+            MouseAimSettings.InvertXAxis = GUILayout.Toggle(MouseAimSettings.InvertXAxis, "Invert X Axis");
+            MouseAimSettings.InvertYAxis = GUILayout.Toggle(MouseAimSettings.InvertYAxis, "Invert Y Axis");
             GUILayout.EndVertical();
 
             GUI.DragWindow();
