@@ -9,10 +9,8 @@ namespace MouseAimFlight
     class PID
     {
         public float kp, ki, kd;
-        float outputP, outputI, outputD, output;
+        float outputP, outputI, outputD;
         float initKp, initKi, initKd;
-
-        float errorP, errorI, errorD; //FOR DEBUGGING PURPOSES
 
         float integral;
         public bool IntegralZeroed
@@ -42,6 +40,8 @@ namespace MouseAimFlight
         public float Simulate(float error, float derivError, float integralLimit, float timeStep, float speedFactor)
         {
             //Setup
+            float output = 0;
+
             integral += error * timeStep;
 
             if (ki != 0)
@@ -50,20 +50,16 @@ namespace MouseAimFlight
                 ZeroIntegral();
 
             //Computing the outputs
-            outputP = error * kp;
-            if (outputP >= 1)
+            output += error * kp; //Proportional
+            output += derivError * kd; //Derivative
+
+            output *= speedFactor; //Speed factor
+
+            if (output >= 1)
                 ZeroIntegral();
-            outputI = integral * ki;
-            outputD = derivError * kd;
 
-            //Set values for debugging - avoid using them anywhere else
-            errorP = error;
-            errorI = integral;
-            errorD = derivError;
-            output = outputP + outputI + outputD;
-            //-----------------------
+            output += integral * ki * speedFactor; //Integral
 
-            output *= speedFactor;
             Clamp(ref output, 1);
 
             return output;
@@ -84,13 +80,7 @@ namespace MouseAimFlight
 
         public void DebugString(ref string debugString, string name)
         {
-            debugString += name + " errors:\n";
-            debugString += "p: " + errorP.ToString("N7") + "\ti: " + errorI.ToString("N7") + "\td: " + errorD.ToString("N8") + "\n";
-            debugString += name + " gains:\n";
-            debugString += "p: " + kp.ToString("N7") + "\ti: " + ki.ToString("N7") + "\td: " + kd.ToString("N7") + "\n";
-            debugString += name + " error*gains:\n";
-            debugString += "p: " + outputP.ToString("N7") + "\ti: " + outputI.ToString("N7") + "\td: " + outputD.ToString("N8") + "\n";
-            debugString += "Output: " + output.ToString("N7");
+            debugString += name + "NOT IMPLEMENTED";
         }
     }
 }

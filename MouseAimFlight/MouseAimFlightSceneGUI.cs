@@ -138,7 +138,7 @@ namespace MouseAimFlight
                     null,
                     null,
                     ApplicationLauncher.AppScenes.FLIGHT,
-                    (Texture)GameDatabase.Instance.GetTexture("MouseAimFlight/Textures/icon_button_stock", false));
+                    (Texture)GameDatabase.Instance.GetTexture("MouseAimFlight/Assets/MAF_icon", false));
             }
         }
 
