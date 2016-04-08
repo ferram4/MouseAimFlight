@@ -9,7 +9,6 @@ namespace MouseAimFlight
     class PID
     {
         public float kp, ki, kd;
-        float outputP, outputI, outputD;
         float initKp, initKi, initKd;
 
         float integral;
@@ -76,11 +75,6 @@ namespace MouseAimFlight
         public void ZeroIntegral()
         {
             integral = 0;
-        }
-
-        public void DebugString(ref string debugString, string name)
-        {
-            debugString += name + "NOT IMPLEMENTED";
         }
     }
 }

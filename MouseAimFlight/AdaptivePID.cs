@@ -26,14 +26,6 @@ namespace MouseAimFlight
             yawPID = new PID(yawP, yawI, yawD);
         }
 
-        //The constructor below is an abomination and will be nuked as soon as the GUI as it is gets removed.
-        public AdaptivePID(float pP, float pI, float pD, float rP, float rI, float rD, float yP, float yI, float yD)
-        {
-            pitchPID = new PID(pP, pI, pD);
-            rollPID = new PID(rP, rI, rD);
-            yawPID = new PID(yP, yI, yD);
-        }
-
         public float UpWeighting(float terrainAltitude, float dynPress, float velocity)
         {
             if (terrainAltitude < 50)
