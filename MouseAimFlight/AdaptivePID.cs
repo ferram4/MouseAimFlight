@@ -13,7 +13,7 @@ namespace MouseAimFlight
         public PID yawPID;
 
         float pitchP = 0.2f, pitchI = 0.1f, pitchD = 0.08f;
-        float rollP = 0.01f, rollI = 0.001f, rollD = 0.005f;
+        float rollP = 0.01f, rollI = 0.0f, rollD = 0.005f;
         float yawP = 0.035f, yawI = 0.1f, yawD = 0.04f;
         float upWeighting = 3f; //TODO: update external upweighting
 

@@ -44,7 +44,7 @@ namespace MouseAimFlight
             integral += error * timeStep;
 
             if (ki != 0)
-                Clamp(ref integral, integralLimit / ki); //limits outputI to integralLimit
+                Clamp(ref integral, integralLimit / (ki * speedFactor)); //limits outputI to integralLimit
             else
                 ZeroIntegral();
 

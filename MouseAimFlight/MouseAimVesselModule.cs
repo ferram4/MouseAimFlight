@@ -15,6 +15,7 @@ namespace MouseAimFlight
         string upWeightingStr;
 
         AdaptivePID pilot;
+        FlightBehavior flightMode;
 
         static Vessel prevActiveVessel = null;
         bool mouseAimActive = false;
@@ -54,6 +55,7 @@ namespace MouseAimFlight
             upWeightingStr = upWeighting.ToString();
 
             pilot = new AdaptivePID();
+            flightMode = new FlightBehavior();
 
             vesselTransform = vessel.ReferenceTransform;
             targetPosition = vesselTransform.up * 5000;     //if it's activated, set it to the baseline
@@ -224,9 +226,9 @@ namespace MouseAimFlight
 
             Vector3d targetDirection;
             Vector3d targetDirectionYaw;
-            float yawError;
-            float pitchError;
-            float rollError;
+            //float yawError;
+            //float pitchError;
+            //float rollError;
 
             float terrainAltitude;
             float dynPressure;
@@ -240,23 +242,15 @@ namespace MouseAimFlight
             dynPressure = (float)vessel.dynamicPressurekPa;
             velocity = (float)vessel.srfSpeed;
 
-            pitchError = (float)Math.Asin(Vector3d.Dot(Vector3d.back, VectorUtils.Vector3dProjectOnPlane(targetDirection, Vector3d.right))) * Mathf.Rad2Deg;
-            yawError = (float)Math.Asin(Vector3d.Dot(Vector3d.right, VectorUtils.Vector3dProjectOnPlane(targetDirectionYaw, Vector3d.forward))) * Mathf.Rad2Deg;
-
-            //roll
-            Vector3 currentRoll = -vesselTransform.forward;
-            Vector3 rollTarget;
-
             upWeighting = pilot.UpWeighting(terrainAltitude, dynPressure, velocity);
 
-            rollTarget = (targetPosition + Mathf.Clamp(upWeighting * (100f - Math.Abs(yawError * 1.6f) - (pitchError * 2.8f)), 0, float.PositiveInfinity) * upDirection) - vessel.CoM;
+            //Calculating errors
+            ErrorData behavior = flightMode.normalFlight(vesselTransform, targetDirection, targetDirectionYaw, targetPosition, upDirection, upWeighting, vessel);
 
-            rollTarget = Vector3.ProjectOnPlane(rollTarget, vesselTransform.up);
+            //Controlling
+            Steer steer = pilot.Simulate(behavior.pitchError, behavior.rollError, behavior.yawError, localAngVel, terrainAltitude, TimeWarp.fixedDeltaTime, dynPressure, velocity);
 
-            rollError = VectorUtils.SignedAngle(currentRoll, rollTarget, vesselTransform.right);
-
-            Steer steer = pilot.Simulate(pitchError, rollError, yawError, localAngVel, terrainAltitude, TimeWarp.fixedDeltaTime, dynPressure, velocity);
-
+            //Piloting
             s.pitch = Mathf.Clamp(steer.pitch, -1, 1);
             if (s.roll == s.rollTrim)
                 s.roll = Mathf.Clamp(steer.roll, -1, 1);
