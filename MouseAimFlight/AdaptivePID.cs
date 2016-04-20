@@ -38,12 +38,12 @@ namespace MouseAimFlight
         {
             float speedFactor = vel / dynPress / 16; //More work needs to be done to sanitize speedFactor
 
-            if (speedFactor > 2)
-                speedFactor = 2;
+            if (speedFactor > 1.5f)
+                speedFactor = 1.5f;
 
-            float trimFactor = (float)Math.Sqrt(speedFactor);
+            //AdaptGains(pitchError, rollError, yawError, angVel, terrainAltitude, timestep, dynPress, vel);
 
-            float steerPitch = pitchPID.Simulate(pitchError, angVel.x, pIntLimt * trimFactor, timestep, speedFactor);
+            float steerPitch = pitchPID.Simulate(pitchError, angVel.x, pIntLimt, timestep, speedFactor);
             float steerRoll = rollPID.Simulate(rollError, angVel.y, rIntLimit, timestep, speedFactor);
             if (pitchPID.IntegralZeroed)        //yaw integrals should be zeroed at the same time that pitch PIDs are zeroed, because that happens in large turns
                 yawPID.ZeroIntegral();
@@ -54,7 +54,7 @@ namespace MouseAimFlight
             return steer;
         }
         
-        void AdaptGains(float timeStep, float speedFactor)
+        void AdaptGains(float pitchError, float rollError, float yawError, UnityEngine.Vector3 angVel, float terrainAltitude, float timestep, float dynPress, float vel)
         {
             //There will be some cool code in here in the future.
         }

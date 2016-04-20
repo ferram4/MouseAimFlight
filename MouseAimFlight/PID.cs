@@ -11,6 +11,9 @@ namespace MouseAimFlight
         public float kp, ki, kd;
         float initKp, initKi, initKd;
 
+        float outputP, outputD, outputI;
+
+
         float integral;
         public bool IntegralZeroed
         {
@@ -49,15 +52,19 @@ namespace MouseAimFlight
                 ZeroIntegral();
 
             //Computing the outputs
-            output += error * kp; //Proportional
-            output += derivError * kd; //Derivative
+            outputP = error * kp; //Proportional
+            outputD = derivError * kd; //Derivative
+
+            output = outputP + outputD;
 
             output *= speedFactor; //Speed factor
 
             if (output >= 1)
                 ZeroIntegral();
 
-            output += integral * ki * speedFactor; //Integral
+            outputI = integral * ki * speedFactor; //Integral with speed factor
+
+            output += outputI;
 
             Clamp(ref output, 1);
 
