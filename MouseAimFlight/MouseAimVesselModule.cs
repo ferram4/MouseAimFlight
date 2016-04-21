@@ -75,6 +75,7 @@ namespace MouseAimFlight
 
         void Start()
         {
+
             vessel = GetComponent<Vessel>();
             vessel.OnAutopilotUpdate += MouseAimPilot;
 
@@ -114,13 +115,13 @@ namespace MouseAimFlight
                 prevActiveVessel = vessel;
                 if (mouseAimActive)
                 {
-                    Screen.lockCursor = true;
-                    Screen.showCursor = false;
+                    Cursor.lockState = CursorLockMode.Locked;
+                    Cursor.visible = false;
                 }
                 else
                 {
-                    Screen.lockCursor = false;
-                    Screen.showCursor = true;
+                    Cursor.lockState = CursorLockMode.None;
+                    Cursor.visible = true;
                 }
             }
             else if (Input.GetKeyDown(MouseAimSettings.ToggleKeyCode))
@@ -128,13 +129,13 @@ namespace MouseAimFlight
                 mouseAimActive = !mouseAimActive;
                 if (mouseAimActive)
                 {
-                    Screen.lockCursor = true;
-                    Screen.showCursor = false;
+                    Cursor.lockState = CursorLockMode.Locked;
+                    Cursor.visible = false;
                 }
                 else
                 {
-                    Screen.lockCursor = false;
-                    Screen.showCursor = true;
+                    Cursor.lockState = CursorLockMode.None;
+                    Cursor.visible = true;
                 }
                 targetPosition = vesselTransform.up * 5000f;     //if it's activated, set it to the baseline
                 UpdateCursorScreenLocation();
@@ -233,8 +234,8 @@ namespace MouseAimFlight
 
             if ((freeLook != prevFreeLook || forceCursorResetNextFrame) && mouseAimActive)
             {
-                Screen.lockCursor = true;
-                Screen.showCursor = false;
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
 
                 forceCursorResetNextFrame = false;
             }

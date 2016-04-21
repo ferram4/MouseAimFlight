@@ -38,10 +38,13 @@ Icon
 TrackIRUnity.dll
 Assembly*
 Mono*
+KSP*
 mscorlib.dll
 System*
 TDx*
-UnityEngine.dll
+UnityEngine*
+Vectrosity.dll
+SaveUpgradePipeline.Core.dll
 *.pdb
 *.jar
 

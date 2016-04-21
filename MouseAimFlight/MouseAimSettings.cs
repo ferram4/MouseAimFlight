@@ -144,7 +144,9 @@ namespace MouseAimFlight
                 }
                 if(node.HasValue("cursorStyle"))
                 {
-                    Enum.TryParse<CursorStyle>((string)node.GetValue("cursorStyle"), out cursor);
+                    object temp = Enum.Parse(typeof(CursorStyle), (string)node.GetValue("cursorStyle"));
+                    if (temp != null)
+                        cursor = (CursorStyle)temp;
                 }
                 if (node.HasValue("mouseSensitivity"))
                 {

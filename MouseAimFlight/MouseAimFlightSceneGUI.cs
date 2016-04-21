@@ -27,6 +27,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using KSP.UI.Screens;
 
 namespace MouseAimFlight
 {
@@ -36,6 +37,7 @@ namespace MouseAimFlight
         static MouseAimFlightSceneGUI instance;
         public static MouseAimFlightSceneGUI Instance { get { return instance; } }
 
+        static bool ready = false;
         static ApplicationLauncherButton mAFButton = null;
         static bool showGUI = false;
         static Rect guiRect;
@@ -71,7 +73,7 @@ namespace MouseAimFlight
                 vesselForwardBlank.filterMode = FilterMode.Trilinear;
             }
             UpdateCursor(MouseAimSettings.Cursor);
-            OnGUIAppLauncherReady();
+            GameEvents.onGUIApplicationLauncherReady.Add(OnGUIAppLauncherReady);
         }
 
         public static void DisplayMouseAimReticles(Vector3 mouseAimScreenLocation, Vector3 vesselForwardScreenLocation)
@@ -154,7 +156,7 @@ namespace MouseAimFlight
        #region AppLauncher
         public void OnGUIAppLauncherReady()
         {
-            if (ApplicationLauncher.Ready && mAFButton == null)
+            if (mAFButton == null)
             {
                 mAFButton = ApplicationLauncher.Instance.AddModApplication(
                     onAppLaunchToggleOn,
