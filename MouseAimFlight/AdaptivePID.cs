@@ -42,7 +42,7 @@ namespace MouseAimFlight
         float yawP = 0.035f, yawI = 0.1f, yawD = 0.04f;
         float upWeighting = 3f; //TODO: update external upweighting
 
-        float pIntLimt = 0.2f, rIntLimit = 0.2f, yIntLimit = 0.2f; //initialize integral limits at 0.2
+        float pIntLimit = 0.2f, rIntLimit = 0.2f, yIntLimit = 0.2f; //initialize integral limits at 0.2
 
         public AdaptivePID()
         {
@@ -66,9 +66,11 @@ namespace MouseAimFlight
             if (speedFactor > 1.5f)
                 speedFactor = 1.5f;
 
-            //AdaptGains(pitchError, rollError, yawError, angVel, terrainAltitude, timestep, dynPress, vel);
+            float trimFactor = (float)Math.Sqrt(speedFactor);
 
-            float steerPitch = pitchPID.Simulate(pitchError, angVel.x, pIntLimt, timestep, speedFactor);
+            AdaptGains(pitchError, rollError, yawError, angVel, terrainAltitude, timestep, dynPress, vel, trimFactor);
+
+            float steerPitch = pitchPID.Simulate(pitchError, angVel.x, pIntLimit * trimFactor, timestep, speedFactor);
             float steerRoll = rollPID.Simulate(rollError, angVel.y, rIntLimit, timestep, speedFactor);
             if (pitchPID.IntegralZeroed)        //yaw integrals should be zeroed at the same time that pitch PIDs are zeroed, because that happens in large turns
                 yawPID.ZeroIntegral();
@@ -79,9 +81,21 @@ namespace MouseAimFlight
             return steer;
         }
         
-        void AdaptGains(float pitchError, float rollError, float yawError, UnityEngine.Vector3 angVel, float terrainAltitude, float timestep, float dynPress, float vel)
+        void AdaptGains(float pitchError, float rollError, float yawError, UnityEngine.Vector3 angVel, float terrainAltitude, float timestep, float dynPress, float vel, float trimFactor) //should remove trimfactor
         {
-            //There will be some cool code in here in the future.
+            if ((float)Math.Abs(pitchError * pitchPID.kp * trimFactor) < pIntLimit * trimFactor) //find a better way to do this (damping kicks in only when proportional gain is smaller than the max integral gain)
+            {
+                pitchPID.kp = pitchP * 0.1f;
+                pitchPID.ki = pitchI * 2f;
+                pitchPID.kd = pitchD * 0.1f;
+            }
+            else
+            {
+                pitchPID.kp = pitchP;
+                pitchPID.ki = pitchI;
+                pitchPID.kd = pitchD;
+            }
+            //There will be some cooler code in here in the future.
         }
 
     }
