@@ -39,7 +39,7 @@ namespace MouseAimFlight
         public PID yawPID;
 
         float pitchP = 0.2f, pitchI = 0.1f, pitchD = 0.08f;
-        float rollP = 0.01f, rollI = 0.001f, rollD = 0.005f;
+        float rollP = 0.01f, rollI = 0.0f, rollD = 0.005f;
         float yawP = 0.035f, yawI = 0.1f, yawD = 0.04f;
         float upWeighting = 3f; //TODO: update external upweighting
 
@@ -50,14 +50,6 @@ namespace MouseAimFlight
             pitchPID = new PID(pitchP, pitchI, pitchD);
             rollPID = new PID(rollP, rollI, rollD);
             yawPID = new PID(yawP, yawI, yawD);
-        }
-
-        //The constructor below is an abomination and will be nuked as soon as the GUI as it is gets removed.
-        public AdaptivePID(float pP, float pI, float pD, float rP, float rI, float rD, float yP, float yI, float yD)
-        {
-            pitchPID = new PID(pP, pI, pD);
-            rollPID = new PID(rP, rI, rD);
-            yawPID = new PID(yP, yI, yD);
         }
 
         public float UpWeighting(float terrainAltitude, float dynPress, float velocity)
@@ -72,12 +64,12 @@ namespace MouseAimFlight
         {
             float speedFactor = vel / dynPress / 16; //More work needs to be done to sanitize speedFactor
 
-            if (speedFactor > 2)
-                speedFactor = 2;
+            if (speedFactor > 1.5f)
+                speedFactor = 1.5f;
 
-            float trimFactor = (float)Math.Sqrt(speedFactor);
+            //AdaptGains(pitchError, rollError, yawError, angVel, terrainAltitude, timestep, dynPress, vel);
 
-            float steerPitch = pitchPID.Simulate(pitchError, angVel.x, pIntLimt * trimFactor, timestep, speedFactor);
+            float steerPitch = pitchPID.Simulate(pitchError, angVel.x, pIntLimt, timestep, speedFactor);
             float steerRoll = rollPID.Simulate(rollError, angVel.y, rIntLimit, timestep, speedFactor);
             if (pitchPID.IntegralZeroed)        //yaw integrals should be zeroed at the same time that pitch PIDs are zeroed, because that happens in large turns
                 yawPID.ZeroIntegral();
@@ -88,7 +80,7 @@ namespace MouseAimFlight
             return steer;
         }
         
-        void AdaptGains(float timeStep, float speedFactor)
+        void AdaptGains(float pitchError, float rollError, float yawError, UnityEngine.Vector3 angVel, float terrainAltitude, float timestep, float dynPress, float vel)
         {
             //There will be some cool code in here in the future.
         }

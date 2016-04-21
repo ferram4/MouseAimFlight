@@ -36,26 +36,12 @@ namespace MouseAimFlight
         Vessel vessel;
         Transform vesselTransform;
 
-        //GET RID OF THIS AS SOON AS THE GUI IS REMOVED
-        float pitchP = 0.2f, pitchI = 0.1f, pitchD = 0.08f;
-        float rollP = 0.01f, rollI = 0.001f, rollD = 0.005f;
-        float yawP = 0.035f, yawI = 0.1f, yawD = 0.04f;
-        //------------------
-
-        //DEBUG
-        float dynPressDebug;
-        float speedFactorDebug;
-        float invSpeedFactorDebug;
-        //------------------
-
         float upWeighting = 0; //Upweighting not working, updating it on the GUI doesn't work either.
 
-        string pitchPstr, pitchIstr, pitchDstr;
-        string rollPstr, rollIstr, rollDstr;
-        string yawPstr, yawIstr, yawDstr;
         string upWeightingStr;
 
         AdaptivePID pilot;
+        FlightBehavior flightMode;
 
         static Vessel prevActiveVessel = null;
         bool mouseAimActive = false;
@@ -64,14 +50,11 @@ namespace MouseAimFlight
         static bool forceCursorResetNextFrame = false;
         static bool pitchYawOverrideMouseAim = false;
         static FieldInfo freeLookKSPCameraField = null;
-        string debugLabel;
         
         Vector3 upDirection;
         Vector3 targetPosition;
         Vector3 mouseAimScreenLocation;
         Vector3 vesselForwardScreenLocation;
-
-        Rect debugRect;
 
         GameObject vobj;
         Transform velocityTransform
@@ -95,21 +78,10 @@ namespace MouseAimFlight
             vessel = GetComponent<Vessel>();
             vessel.OnAutopilotUpdate += MouseAimPilot;
 
-            pitchDstr = pitchD.ToString();
-            pitchIstr = pitchI.ToString();
-            pitchPstr = pitchP.ToString();
-
-            rollDstr = rollD.ToString();
-            rollIstr = rollI.ToString();
-            rollPstr = rollP.ToString();
-
-            yawDstr = yawD.ToString();
-            yawIstr = yawI.ToString();
-            yawPstr = yawP.ToString();
-
             upWeightingStr = upWeighting.ToString();
 
             pilot = new AdaptivePID();
+            flightMode = new FlightBehavior();
 
             vesselTransform = vessel.ReferenceTransform;
             targetPosition = vesselTransform.up * 5000;     //if it's activated, set it to the baseline
@@ -126,104 +98,6 @@ namespace MouseAimFlight
             {
                 MouseAimFlightSceneGUI.DisplayMouseAimReticles(mouseAimScreenLocation, vesselForwardScreenLocation);
             }
-            /*    GUI.contentColor = Color.black;
-                GUI.Label(new Rect(200, 200, 1200, 800), debugLabel);
-
-            }
-            else if (vessel == FlightGlobals.ActiveVessel)
-                debugRect = GUILayout.Window(this.GetHashCode(), debugRect, DebugPIDGUI, "");*/
-        }
-
-        void DebugPIDGUI(int windowID)
-        {
-            GUILayout.Label("Pitch:");
-
-            GUILayout.BeginHorizontal();
-            TextEntry(ref pitchPstr, "P:");
-            GUILayout.Label(pilot.pitchPID.kp.ToString());
-            GUILayout.EndHorizontal();
-
-            GUILayout.BeginHorizontal();
-            TextEntry(ref pitchIstr, "I:");
-            GUILayout.Label(pilot.pitchPID.ki.ToString());
-            GUILayout.EndHorizontal();
-
-            GUILayout.BeginHorizontal();
-            TextEntry(ref pitchDstr, "D:");
-            GUILayout.Label(pilot.pitchPID.kd.ToString());
-            GUILayout.EndHorizontal();
-
-            GUILayout.Label("Roll:");
-
-            GUILayout.BeginHorizontal();
-            TextEntry(ref rollPstr, "P:");
-            GUILayout.Label(pilot.rollPID.kp.ToString());
-            GUILayout.EndHorizontal();
-
-            GUILayout.BeginHorizontal();
-            TextEntry(ref rollIstr, "I:");
-            GUILayout.Label(pilot.rollPID.ki.ToString());
-            GUILayout.EndHorizontal();
-
-            GUILayout.BeginHorizontal();
-            TextEntry(ref rollDstr, "D:");
-            GUILayout.Label(pilot.rollPID.kd.ToString());
-            GUILayout.EndHorizontal();
-
-            GUILayout.Label("Yaw:");
-
-            GUILayout.BeginHorizontal();
-            TextEntry(ref yawPstr, "P:");
-            GUILayout.Label(pilot.yawPID.kp.ToString());
-            GUILayout.EndHorizontal();
-
-            GUILayout.BeginHorizontal();
-            TextEntry(ref yawIstr, "I:");
-            GUILayout.Label(pilot.yawPID.ki.ToString());
-            GUILayout.EndHorizontal();
-
-            GUILayout.BeginHorizontal();
-            TextEntry(ref yawDstr, "D:");
-            GUILayout.Label(pilot.yawPID.kd.ToString());
-            GUILayout.EndHorizontal();
-            
-            TextEntry(ref upWeightingStr, "Roll-up Weight");
-
-            if (GUILayout.Button("Update K and reset integration errors"))
-            {
-                pitchD = float.Parse(pitchDstr);
-                pitchI = float.Parse(pitchIstr);
-                pitchP = float.Parse(pitchPstr);
-
-                rollD = float.Parse(rollDstr);
-                rollI = float.Parse(rollIstr);
-                rollP = float.Parse(rollPstr);
-
-                yawD = float.Parse(yawDstr);
-                yawI = float.Parse(yawIstr);
-                yawP = float.Parse(yawPstr);
-
-                upWeighting = float.Parse(upWeightingStr);
-
-                pilot = new AdaptivePID(pitchP, pitchI, pitchD, rollP, rollI, rollD, yawP, yawI, yawD);
-            }
-
-            if (GUILayout.Button("Reset integration errors"))
-            {
-                pilot.pitchPID.ZeroIntegral();
-                pilot.rollPID.ZeroIntegral();
-                pilot.yawPID.ZeroIntegral();
-            }
-
-            GUI.DragWindow();
-        }
-
-        void TextEntry(ref string field, string label)
-        {
-            GUILayout.BeginHorizontal();
-            GUILayout.Label(label);
-            field = GUILayout.TextField(field);
-            GUILayout.EndHorizontal();
         }
 
         void Update()
@@ -287,7 +161,6 @@ namespace MouseAimFlight
 
             vesselTransform = vessel.ReferenceTransform;
 
-            debugLabel = "";
             if (s.pitch != s.pitchTrim || s.yaw != s.yawTrim)
             {
                 pitchYawOverrideMouseAim = true;
@@ -299,19 +172,6 @@ namespace MouseAimFlight
             upDirection = VectorUtils.GetUpDirection(vesselTransform.position);
 
             FlyToPosition(s, targetPosition + vessel.CoM);
-            pilot.pitchPID.DebugString(ref debugLabel, "pitch");
-            debugLabel += "\n\n";
-            pilot.rollPID.DebugString(ref debugLabel, "roll");
-            debugLabel += "\n\n";
-            pilot.yawPID.DebugString(ref debugLabel, "yaw");
-            debugLabel += "\n\n";
-            debugLabel += "Dynpress: " + dynPressDebug.ToString("N7");
-            debugLabel += "\n\n";
-            debugLabel += "Speed Factor: " + speedFactorDebug.ToString("N7");
-            debugLabel += "\n\n";
-            debugLabel += "Inverse Speed Factor: " + invSpeedFactorDebug.ToString("N7");
-            debugLabel += "\n\n";
-            debugLabel += "freelook: " + freeLook;
         }
 
         void UpdateMouseCursorForCameraRotation()
@@ -392,9 +252,9 @@ namespace MouseAimFlight
 
             Vector3d targetDirection;
             Vector3d targetDirectionYaw;
-            float yawError;
-            float pitchError;
-            float rollError;
+            //float yawError;
+            //float pitchError;
+            //float rollError;
 
             float terrainAltitude;
             float dynPressure;
@@ -408,33 +268,19 @@ namespace MouseAimFlight
             dynPressure = (float)vessel.dynamicPressurekPa;
             velocity = (float)vessel.srfSpeed;
 
-            pitchError = (float)Math.Asin(Vector3d.Dot(Vector3d.back, VectorUtils.Vector3dProjectOnPlane(targetDirection, Vector3d.right))) * Mathf.Rad2Deg;
-            yawError = (float)Math.Asin(Vector3d.Dot(Vector3d.right, VectorUtils.Vector3dProjectOnPlane(targetDirectionYaw, Vector3d.forward))) * Mathf.Rad2Deg;
-
-            //roll
-            Vector3 currentRoll = -vesselTransform.forward;
-            Vector3 rollTarget;
-
             upWeighting = pilot.UpWeighting(terrainAltitude, dynPressure, velocity);
 
-            rollTarget = (targetPosition + Mathf.Clamp(upWeighting * (100f - Math.Abs(yawError * 1.6f) - (pitchError * 2.8f)), 0, float.PositiveInfinity) * upDirection) - vessel.CoM;
+            //Calculating errors
+            ErrorData behavior = flightMode.normalFlight(vesselTransform, targetDirection, targetDirectionYaw, targetPosition, upDirection, upWeighting, vessel);
 
-            rollTarget = Vector3.ProjectOnPlane(rollTarget, vesselTransform.up);
+            //Controlling
+            Steer steer = pilot.Simulate(behavior.pitchError, behavior.rollError, behavior.yawError, localAngVel, terrainAltitude, TimeWarp.fixedDeltaTime, dynPressure, velocity);
 
-            rollError = VectorUtils.SignedAngle(currentRoll, rollTarget, vesselTransform.right);
-
-            Steer steer = pilot.Simulate(pitchError, rollError, yawError, localAngVel, terrainAltitude, TimeWarp.fixedDeltaTime, dynPressure, velocity);
-
+            //Piloting
             s.pitch = Mathf.Clamp(steer.pitch, -1, 1);
             if (s.roll == s.rollTrim)
                 s.roll = Mathf.Clamp(steer.roll, -1, 1);
             s.yaw = Mathf.Clamp(steer.yaw, -1, 1);
-
-            //Debug
-            dynPressDebug = dynPressure;
-            speedFactorDebug = dynPressure * 16 / velocity;
-            invSpeedFactorDebug = 1 / (speedFactorDebug + Single.Epsilon);
-            //------------------
         }
 
         float GetRadarAltitude()
