@@ -127,6 +127,16 @@ namespace MouseAimFlight
             }
         }
 
+        static bool fARLoaded;
+        public static bool FARLoaded
+        {
+            get { return fARLoaded; }
+            set
+            {
+                fARLoaded = value;
+            }
+        }
+
         MouseAimSettings()
         {
             LoadSettings();
@@ -161,6 +171,7 @@ namespace MouseAimFlight
                     bool.TryParse(node.GetValue("invertY"), out invertX);
                 }
             }
+            DetectFARLoaded();
         }
 
         public void SaveSettings()
@@ -176,6 +187,25 @@ namespace MouseAimFlight
             ConfigNode saveNode = new ConfigNode();
             saveNode.AddNode(node);
             saveNode.Save(KSPUtil.ApplicationRootPath.Replace("\\", "/") + "GameData/MouseAimFlight/MAFSettings.cfg");
+        }
+
+        void DetectFARLoaded()
+        {
+            foreach (AssemblyLoader.LoadedAssembly loaded in AssemblyLoader.loadedAssemblies)
+            {
+                if (loaded.assembly.GetName().Name == "FerramAerospaceResearch")
+                {
+                    FARLoaded = true;
+                    break;
+                }
+                else
+                    FARLoaded = false;
+            }
+
+            if(FARLoaded)
+                Debug.Log("[MAF]: FAR loaded, switching adaptive gain settings");
+            else
+                Debug.Log("[MAF]: Stock aero model loaded, switching adaptive gain settings");
         }
     }
 }

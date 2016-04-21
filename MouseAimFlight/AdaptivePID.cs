@@ -68,7 +68,8 @@ namespace MouseAimFlight
 
             float trimFactor = (float)Math.Sqrt(speedFactor);
 
-            AdaptGains(pitchError, rollError, yawError, angVel, terrainAltitude, timestep, dynPress, vel, trimFactor);
+            if (!MouseAimSettings.FARLoaded)
+                AdaptGains(pitchError, rollError, yawError, angVel, terrainAltitude, timestep, dynPress, vel, trimFactor);
 
             float steerPitch = pitchPID.Simulate(pitchError, angVel.x, pIntLimit * trimFactor, timestep, speedFactor);
             float steerRoll = rollPID.Simulate(rollError, angVel.y, rIntLimit, timestep, speedFactor);

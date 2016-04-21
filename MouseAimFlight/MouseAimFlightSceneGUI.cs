@@ -74,6 +74,7 @@ namespace MouseAimFlight
             }
             UpdateCursor(MouseAimSettings.Cursor);
             GameEvents.onGUIApplicationLauncherReady.Add(OnGUIAppLauncherReady);
+            MouseAimSettings.Instance.SaveSettings();
         }
 
         public static void DisplayMouseAimReticles(Vector3 mouseAimScreenLocation, Vector3 vesselForwardScreenLocation)
@@ -115,7 +116,7 @@ namespace MouseAimFlight
             GUILayout.Space(5);
 
             GUILayout.BeginHorizontal(GUILayout.Width(170));
-            if(GUILayout.Button("Change Cursor: ", GUILayout.Width(100)))
+            if(GUILayout.Button("Cursor: ", GUILayout.Width(100)))
                 CycleCursor();
             GUI.DrawTexture(new Rect(120, 65, 35, 35), vesselForwardReticle);
             GUILayout.EndHorizontal();
