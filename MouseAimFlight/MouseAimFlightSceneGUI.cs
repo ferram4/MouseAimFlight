@@ -108,14 +108,14 @@ namespace MouseAimFlight
         void GUIWindow(int windowID)
         {
             GUILayout.BeginVertical();
-            GUILayout.BeginHorizontal(GUILayout.Width(170));
+            GUILayout.BeginHorizontal(GUILayout.Width(180));
             GUILayout.Label("Toggle MouseAim Key: ");
             MouseAimSettings.ToggleKeyString = GUILayout.TextField(MouseAimSettings.ToggleKeyString, 1, GUILayout.Width(25));
             GUILayout.EndHorizontal();
 
             GUILayout.Space(5);
 
-            GUILayout.BeginHorizontal(GUILayout.Width(170));
+            GUILayout.BeginHorizontal(GUILayout.Width(180));
             if(GUILayout.Button("Cursor: ", GUILayout.Width(100)))
                 CycleCursor();
             GUI.DrawTexture(new Rect(120, 65, 35, 35), vesselForwardReticle);
