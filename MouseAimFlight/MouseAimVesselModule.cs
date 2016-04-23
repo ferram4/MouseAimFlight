@@ -92,7 +92,6 @@ namespace MouseAimFlight
             
         }
 
-        //Commented out old GUI
         void OnGUI()
         {
             if (vessel == FlightGlobals.ActiveVessel && mouseAimActive && !MapView.MapIsEnabled)
