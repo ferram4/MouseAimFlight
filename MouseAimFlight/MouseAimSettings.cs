@@ -123,33 +123,33 @@ namespace MouseAimFlight
 
         void LoadSettings()
         {
-            ConfigNode node = GameDatabase.Instance.GetConfigNode("MAFSettings");
-            if((object)node != null)
-            {
-                if (node.HasValue("toggleKey"))
+            foreach(ConfigNode node in GameDatabase.Instance.GetConfigNodes("MAFSettings"))
+                if((object)node != null)
                 {
-                    toggleKeyString = ((string)node.GetValue("toggleKey")).ToUpperInvariant();
-                    toggleKeyCode = (KeyCode)Enum.Parse(typeof(KeyCode), toggleKeyString);
+                    if (node.HasValue("toggleKey"))
+                    {
+                        toggleKeyString = ((string)node.GetValue("toggleKey")).ToUpperInvariant();
+                        toggleKeyCode = (KeyCode)Enum.Parse(typeof(KeyCode), toggleKeyString);
+                    }
+                    if(node.HasValue("cursorStyle"))
+                    {
+                        object temp = Enum.Parse(typeof(CursorStyle), (string)node.GetValue("cursorStyle"));
+                        if (temp != null)
+                            cursor = (CursorStyle)temp;
+                    }
+                    if (node.HasValue("mouseSensitivity"))
+                    {
+                        float.TryParse(node.GetValue("mouseSensitivity"), out mouseSensitivity);
+                    }
+                    if(node.HasValue("invertX"))
+                    {
+                        bool.TryParse(node.GetValue("invertX"), out invertX);
+                    }
+                    if (node.HasValue("invertY"))
+                    {
+                        bool.TryParse(node.GetValue("invertY"), out invertX);
+                    }
                 }
-                if(node.HasValue("cursorStyle"))
-                {
-                    object temp = Enum.Parse(typeof(CursorStyle), (string)node.GetValue("cursorStyle"));
-                    if (temp != null)
-                        cursor = (CursorStyle)temp;
-                }
-                if (node.HasValue("mouseSensitivity"))
-                {
-                    float.TryParse(node.GetValue("mouseSensitivity"), out mouseSensitivity);
-                }
-                if(node.HasValue("invertX"))
-                {
-                    bool.TryParse(node.GetValue("invertX"), out invertX);
-                }
-                if (node.HasValue("invertY"))
-                {
-                    bool.TryParse(node.GetValue("invertY"), out invertX);
-                }
-            }
             DetectFARLoaded();
         }
 

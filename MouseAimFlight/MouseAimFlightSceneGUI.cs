@@ -72,9 +72,9 @@ namespace MouseAimFlight
                 vesselForwardBlank = GameDatabase.Instance.GetTexture("MouseAimFlight/Assets/blank", false);
                 vesselForwardBlank.filterMode = FilterMode.Trilinear;
             }
-            UpdateCursor(MouseAimSettings.Cursor);
             GameEvents.onGUIApplicationLauncherReady.Add(OnGUIAppLauncherReady);
             MouseAimSettings.Instance.SaveSettings();
+            UpdateCursor(MouseAimSettings.Cursor);
         }
 
         public static void DisplayMouseAimReticles(Vector3 mouseAimScreenLocation, Vector3 vesselForwardScreenLocation)
