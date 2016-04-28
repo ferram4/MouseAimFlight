@@ -21,7 +21,7 @@ namespace MouseAimFlight
         float yawP = 0.035f, yawI = 0.1f, yawD = 0.04f;
         float upWeighting = 3f; //TODO: update external upweighting
 
-        float pIntLimit = 0.2f, rIntLimit = 0.2f, yIntLimit = 0.2f; //initialize integral limits at 0.2
+        float pIntLimit = 0.2f, rIntLimit = 0.2f, yIntLimit = 0.1f; //initialize integral limits at 0.2
 
         public AdaptivePID()
         {
