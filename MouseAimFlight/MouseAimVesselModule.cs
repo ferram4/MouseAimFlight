@@ -261,6 +261,7 @@ namespace MouseAimFlight
             float velocity;
 
             //Setup
+
             targetDirection = vesselTransform.InverseTransformDirection(targetPosition - velocityTransform.position).normalized;
             targetDirectionYaw = targetDirection;
 
@@ -271,7 +272,7 @@ namespace MouseAimFlight
             upWeighting = pilot.UpWeighting(terrainAltitude, dynPressure, velocity);
 
             //Calculating errors
-            ErrorData behavior = flightMode.normalFlight(vesselTransform, targetDirection, targetDirectionYaw, targetPosition, upDirection, upWeighting, vessel);
+            ErrorData behavior = flightMode.Simulate(vesselTransform, targetDirection, targetDirectionYaw, targetPosition, upDirection, upWeighting, vessel);
 
             //Controlling
             Steer steer = pilot.Simulate(behavior.pitchError, behavior.rollError, behavior.yawError, localAngVel, terrainAltitude, TimeWarp.fixedDeltaTime, dynPressure, velocity);
