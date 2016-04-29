@@ -51,8 +51,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AdaptivePID.cs" />
+    <Compile Include="FlightModes\CruiseFlight.cs" />
+    <Compile Include="FlightModes\Flight.cs" />
     <Compile Include="CompatibilityChecker.cs" />
     <Compile Include="FlightBehavior.cs" />
+    <Compile Include="FlightModes\NormalFlight.cs" />
     <Compile Include="MouseAimFlightSceneGUI.cs" />
     <Compile Include="MouseAimSettings.cs" />
     <Compile Include="MouseAimVesselModule.cs" />
@@ -60,6 +63,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VectorUtils.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy /y "$(TargetPath)" "$(SolutionDir)GameData\MouseAimFlight\Plugins"</PostBuildEvent>
