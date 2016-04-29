@@ -6,11 +6,11 @@ using UnityEngine;
 
 namespace MouseAimFlight.FlightModes
 {
-    class NormalFlight : Flight
+    class CruiseFlight : Flight
     {
-        private static string flightMode = "Normal Flight";
+        private static string flightMode = "Cruise Flight";
 
-        public NormalFlight()
+        public CruiseFlight()
         {
 
         }

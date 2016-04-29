@@ -271,6 +271,9 @@ namespace MouseAimFlight
 
             upWeighting = pilot.UpWeighting(terrainAltitude, dynPressure, velocity);
 
+            //Setting forced behavior for testing while there is no toggle button
+            flightMode.SetBehavior(1);
+
             //Calculating errors
             ErrorData behavior = flightMode.Simulate(vesselTransform, targetDirection, targetDirectionYaw, targetPosition, upDirection, upWeighting, vessel);
 

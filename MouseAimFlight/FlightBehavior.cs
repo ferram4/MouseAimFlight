@@ -12,20 +12,26 @@ namespace MouseAimFlight
 {
     class FlightBehavior
     {
-        List<FlightModes.NormalFlight> modes;
+        List<FlightModes.Flight> modes;
 
         //Hardcoded Behaviors
         FlightModes.NormalFlight normalFlight;
+        FlightModes.CruiseFlight cruiseFlight;
+
         private int activeMode = 0;
 
         public FlightBehavior() //Hardcoded Behaviors listing, can be made dynamic
         {
-            modes = new List<FlightModes.NormalFlight>();
+            modes = new List<FlightModes.Flight>();
+
             normalFlight = new FlightModes.NormalFlight();
             AddBehavior(normalFlight);
+
+            cruiseFlight = new FlightModes.CruiseFlight();
+            AddBehavior(cruiseFlight);
         }
 
-        void AddBehavior(FlightModes.NormalFlight newBehavior) //Adds behavior to the behaviors list
+        void AddBehavior(FlightModes.Flight newBehavior) //Adds behavior to the behaviors list
         {
             modes.Add(newBehavior);
         }

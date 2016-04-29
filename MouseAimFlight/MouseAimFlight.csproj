@@ -51,9 +51,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AdaptivePID.cs" />
-    <Compile Include="FlightModes\NormalFlight.cs" />
+    <Compile Include="FlightModes\CruiseFlight.cs" />
+    <Compile Include="FlightModes\Flight.cs" />
     <Compile Include="CompatibilityChecker.cs" />
     <Compile Include="FlightBehavior.cs" />
+    <Compile Include="FlightModes\NormalFlight.cs" />
     <Compile Include="MouseAimFlightSceneGUI.cs" />
     <Compile Include="MouseAimSettings.cs" />
     <Compile Include="MouseAimVesselModule.cs" />
